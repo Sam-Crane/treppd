@@ -1,0 +1,4 @@
+services:
+  api-python:
+    # Override: ensure Python service has no exposed ports in production
+    ports: []

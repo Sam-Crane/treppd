@@ -1,0 +1,21 @@
+{
+  "name": "Treppd",
+  "short_name": "Treppd",
+  "description": "Navigate Germany Bureaucracy. Step by step.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "theme_color": "#1a365d",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

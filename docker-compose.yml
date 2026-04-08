@@ -1,0 +1,47 @@
+services:
+  web:
+    build: ./apps/web
+    ports:
+      - '3000:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    depends_on:
+      - api-node
+
+  api-node:
+    build: ./apps/api-node
+    ports:
+      - '3001:3001'
+    environment:
+      - DATABASE_URL=${SUPABASE_DATABASE_URL}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - PYTHON_SERVICE_URL=http://api-python:8000
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - api-python
+      - redis
+
+  api-python:
+    build: ./apps/api-python
+    # No ports exposed — internal only
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_URL=${SUPABASE_DATABASE_URL}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
+      - ENVIRONMENT=development
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
