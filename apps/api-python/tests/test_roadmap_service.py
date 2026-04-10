@@ -118,7 +118,7 @@ class TestFetchBaseSteps:
         service.supabase.table.return_value.select.return_value \
             .contains.return_value.order.return_value.execute.return_value = mock_result
 
-        result = service._fetch_base_steps("student", "DE-BY")
+        service._fetch_base_steps("student", "DE-BY")
 
         # The contains filter is applied at DB level, so all returned steps
         # are assumed to match. We verify the DB query was called correctly.

@@ -5,7 +5,10 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { PythonService } from './python.service';
 
 // Mock Supabase query builder chain
-function createMockQueryBuilder(returnData: unknown = null, error: unknown = null) {
+function createMockQueryBuilder(
+  returnData: unknown = null,
+  error: unknown = null,
+) {
   const builder = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
@@ -24,7 +27,6 @@ function createMockQueryBuilder(returnData: unknown = null, error: unknown = nul
 
 describe('RoadmapService', () => {
   let service: RoadmapService;
-  let supabaseService: SupabaseService;
   let pythonService: PythonService;
   let mockFrom: jest.Mock;
 
@@ -101,15 +103,12 @@ describe('RoadmapService', () => {
     }).compile();
 
     service = module.get<RoadmapService>(RoadmapService);
-    supabaseService = module.get<SupabaseService>(SupabaseService);
     pythonService = module.get<PythonService>(PythonService);
   });
 
   describe('getActiveRoadmap', () => {
     it('should return cached roadmap if not expired', async () => {
-      mockFrom.mockReturnValue(
-        createMockQueryBuilder(mockCachedRoadmap),
-      );
+      mockFrom.mockReturnValue(createMockQueryBuilder(mockCachedRoadmap));
 
       const result = await service.getActiveRoadmap('user-123');
 
@@ -211,7 +210,10 @@ describe('RoadmapService', () => {
 
     it('should throw NotFoundException when user has no profile', async () => {
       mockFrom.mockReturnValue(
-        createMockQueryBuilder(null, { code: 'PGRST116', message: 'not found' }),
+        createMockQueryBuilder(null, {
+          code: 'PGRST116',
+          message: 'not found',
+        }),
       );
 
       await expect(service.generateRoadmap('user-123')).rejects.toThrow(
