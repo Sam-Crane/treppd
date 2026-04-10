@@ -7,6 +7,7 @@ import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RoadmapModule } from './roadmap/roadmap.module';
     AuthModule,
     ProfilesModule,
     RoadmapModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
 })

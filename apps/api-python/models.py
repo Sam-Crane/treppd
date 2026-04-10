@@ -5,6 +5,8 @@ The auto-generated OpenAPI spec from these models is the agreed API contract
 that both services must conform to.
 """
 
+from typing import Dict, List, Optional
+
 from pydantic import BaseModel
 
 
@@ -14,23 +16,23 @@ class UserProfile(BaseModel):
     """User immigration profile sent from NestJS."""
     user_id: str
     nationality: str
-    visa_type: str  # student | work | job_seeker | family | freelance | au_pair
-    bundesland: str  # DE-BY | DE-BE | DE-NW | etc.
-    city: str | None = None
-    goal: str  # initial_setup | visa_renewal | change_visa | family_reunion | job_change
-    arrival_date: str | None = None
-    visa_expiry_date: str | None = None
-    employer_name: str | None = None
-    university_name: str | None = None
-    completed_steps: list[str] = []
+    visa_type: str
+    bundesland: str
+    city: Optional[str] = None
+    goal: str
+    arrival_date: Optional[str] = None
+    visa_expiry_date: Optional[str] = None
+    employer_name: Optional[str] = None
+    university_name: Optional[str] = None
+    completed_steps: List[str] = []
 
 
 class ChatRequest(BaseModel):
     """Chat message request from NestJS."""
     user_id: str
     message: str
-    context_type: str | None = "general"  # roadmap | form_help | document_check | general
-    conversation_history: list[dict] = []
+    context_type: Optional[str] = "general"
+    conversation_history: List[dict] = []
     profile: dict
 
 
@@ -51,12 +53,12 @@ class AppointmentEmailRequest(BaseModel):
 class DeadlineRequest(BaseModel):
     """Deadline computation request."""
     profile: dict
-    step_slugs: list[str]
+    step_slugs: List[str]
 
 
 class SequenceRequest(BaseModel):
     """Step sequence validation request."""
-    completed_steps: list[str]
+    completed_steps: List[str]
     target_step: str
 
 
@@ -66,12 +68,12 @@ class DocumentRequirement(BaseModel):
     """Document needed for a roadmap step."""
     document_name_en: str
     document_name_de: str
-    specifications: dict | None = None
+    specifications: Optional[dict] = None
     needs_certified_copy: bool = False
     needs_translation: bool = False
     needs_apostille: bool = False
-    where_to_get: str | None = None
-    estimated_cost_eur: float | None = None
+    where_to_get: Optional[str] = None
+    estimated_cost_eur: Optional[float] = None
 
 
 class RoadmapStep(BaseModel):
@@ -82,10 +84,10 @@ class RoadmapStep(BaseModel):
     office: str
     can_do_online: bool
     estimated_days: int
-    depends_on: list[str] = []
-    documents_needed: list[DocumentRequirement] = []
-    tips: list[str] = []
-    deadline: str | None = None
+    depends_on: List[str] = []
+    documents_needed: List[DocumentRequirement] = []
+    tips: List[str] = []
+    deadline: Optional[str] = None
     ai_suggested: bool = False
     source_verified: bool = True
 
@@ -93,7 +95,7 @@ class RoadmapStep(BaseModel):
 class RoadmapResponse(BaseModel):
     """Full roadmap generation response."""
     roadmap_id: str
-    steps: list[RoadmapStep]
+    steps: List[RoadmapStep]
     ai_enriched: bool
     ai_fallback: bool
     generated_at: str
@@ -103,13 +105,13 @@ class RoadmapResponse(BaseModel):
 class ChatResponse(BaseModel):
     """AI chat response."""
     response: str
-    updated_history: list[dict]
+    updated_history: List[dict]
 
 
 class FieldExplainResponse(BaseModel):
     """Form field explanation response."""
     explanation: str
-    tips: list[str] = []
+    tips: List[str] = []
     example: str = ""
 
 
@@ -121,24 +123,24 @@ class AppointmentEmailResponse(BaseModel):
 
 class DeadlineResponse(BaseModel):
     """Computed deadlines for steps."""
-    deadlines: dict[str, str | None]  # step_slug -> ISO date or null
+    deadlines: Dict[str, Optional[str]]
 
 
 class SequenceResponse(BaseModel):
     """Step sequence validation result."""
     valid: bool
-    violations: list[str] = []
+    violations: List[str] = []
 
 
 class OfficeInfo(BaseModel):
     """Office contact information."""
     name: str
-    address: str | None = None
-    phone: str | None = None
-    booking_url: str | None = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    booking_url: Optional[str] = None
 
 
 class OfficesResponse(BaseModel):
     """Office listing for a Bundesland."""
     bundesland: str
-    offices: list[OfficeInfo] = []
+    offices: List[OfficeInfo] = []
