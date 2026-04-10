@@ -1,8 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from models import UserProfile, RoadmapResponse
+from services.roadmap_service import RoadmapService
 
 router = APIRouter()
+
+roadmap_service = RoadmapService()
 
 
 @router.post("/generate", response_model=RoadmapResponse)
@@ -18,15 +21,11 @@ async def generate_roadmap(profile: UserProfile):
     AI-added steps are flagged with ai_suggested: true.
     AI cannot modify verified form names, office names, or document requirements.
     """
-    # TODO: Implement roadmap_service.generate()
-    return RoadmapResponse(
-        roadmap_id="placeholder",
-        steps=[],
-        ai_enriched=False,
-        ai_fallback=True,
-        generated_at="2026-01-01T00:00:00Z",
-        expires_at="2026-01-31T00:00:00Z",
-    )
+    try:
+        result = roadmap_service.generate(profile.model_dump())
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/refresh/{user_id}", response_model=RoadmapResponse)
@@ -35,12 +34,10 @@ async def refresh_roadmap(user_id: str):
 
     Reuses the existing profile snapshot from user_roadmaps.
     """
-    # TODO: Implement roadmap_service.refresh()
-    return RoadmapResponse(
-        roadmap_id="placeholder",
-        steps=[],
-        ai_enriched=False,
-        ai_fallback=True,
-        generated_at="2026-01-01T00:00:00Z",
-        expires_at="2026-01-31T00:00:00Z",
-    )
+    try:
+        result = roadmap_service.refresh(user_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
