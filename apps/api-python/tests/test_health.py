@@ -13,5 +13,6 @@ def test_health_endpoint():
 
 
 def test_internal_key_required():
-    response = client.post("/roadmap/generate", json={"user_id": "test"})
+    """Any non-health endpoint without X-Internal-Key returns 403."""
+    response = client.get("/rules/offices/DE-BY")
     assert response.status_code == 403

@@ -1,11 +1,18 @@
 from fastapi import APIRouter, HTTPException
 
 from models import UserProfile, RoadmapResponse
-from services.roadmap_service import RoadmapService
 
 router = APIRouter()
 
-roadmap_service = RoadmapService()
+_service = None
+
+
+def _get_service():
+    global _service
+    if _service is None:
+        from services.roadmap_service import RoadmapService
+        _service = RoadmapService()
+    return _service
 
 
 @router.post("/generate", response_model=RoadmapResponse)
@@ -22,7 +29,7 @@ async def generate_roadmap(profile: UserProfile):
     AI cannot modify verified form names, office names, or document requirements.
     """
     try:
-        result = roadmap_service.generate(profile.model_dump())
+        result = _get_service().generate(profile.model_dump())
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -35,7 +42,7 @@ async def refresh_roadmap(user_id: str):
     Reuses the existing profile snapshot from user_roadmaps.
     """
     try:
-        result = roadmap_service.refresh(user_id)
+        result = _get_service().refresh(user_id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
