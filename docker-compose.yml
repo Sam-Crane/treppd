@@ -1,6 +1,8 @@
 services:
   web:
-    build: ./apps/web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
     ports:
       - '3000:3000'
     environment:
@@ -8,10 +10,14 @@ services:
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
     depends_on:
-      - api-node
+      api-node:
+        condition: service_healthy
+    restart: unless-stopped
 
   api-node:
-    build: ./apps/api-node
+    build:
+      context: .
+      dockerfile: ./apps/api-node/Dockerfile
     ports:
       - '3001:3001'
     environment:
@@ -25,12 +31,20 @@ services:
       - REDIS_URL=redis://redis:6379
       - FRONTEND_URL=http://localhost:3000
     depends_on:
-      - api-python
-      - redis
+      api-python:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   api-python:
-    build: ./apps/api-python
-    # No ports exposed — internal only
+    build:
+      context: .
+      dockerfile: ./apps/api-python/Dockerfile
+    # No ports exposed to host — internal service only
+    # In production, this is on Railway private networking
+    expose:
+      - '8000'
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DATABASE_URL=${SUPABASE_DATABASE_URL}
@@ -39,9 +53,17 @@ services:
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
       - ENVIRONMENT=development
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     ports:
       - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
