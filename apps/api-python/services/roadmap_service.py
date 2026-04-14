@@ -10,7 +10,7 @@ Implements the 6-step hybrid DB + AI pipeline:
 """
 
 import json
-import os
+import logging
 import time
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -18,18 +18,22 @@ from uuid import uuid4
 from anthropic import Anthropic
 from supabase import create_client, Client
 
+from config import get_settings
 from prompts.roadmap_prompt import build_system_prompt, build_user_prompt
+
+logger = logging.getLogger(__name__)
 
 
 class RoadmapService:
     """Core roadmap generation pipeline."""
 
     def __init__(self):
+        settings = get_settings()
         self.supabase: Client = create_client(
-            os.environ["SUPABASE_URL"],
-            os.environ["SUPABASE_SERVICE_KEY"],
+            settings.SUPABASE_URL,
+            settings.SUPABASE_SERVICE_KEY,
         )
-        self.anthropic = Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        self.anthropic = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     def generate(self, profile: dict) -> dict:
         """Generate a personalised roadmap for a user profile."""
@@ -60,12 +64,12 @@ class RoadmapService:
                 profile=profile,
             )
             ai_enriched = True
-        except Exception as e:
+        except Exception:
             # Fallback: return un-enriched steps if Claude fails
             enriched_steps = self._format_unenriched(base_steps)
             ai_added_steps = []
             ai_enriched = False
-            print(f"Claude enrichment failed: {e}")
+            logger.exception("Claude enrichment failed, falling back to raw steps")
 
         # Step 4: Compute deadlines
         enriched_steps = self._compute_deadlines(enriched_steps, profile)

@@ -10,6 +10,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# Ensure services.roadmap_service is importable as a dotted path for patch()
+import services.roadmap_service  # noqa: F401
+
 # We test internal methods directly since they contain the core logic.
 # The service __init__ requires env vars, so we patch the clients.
 
@@ -17,12 +20,19 @@ import pytest
 @pytest.fixture
 def service():
     """Create a RoadmapService with mocked external clients."""
-    with patch.dict("os.environ", {
+    env = {
         "SUPABASE_URL": "https://test.supabase.co",
         "SUPABASE_SERVICE_KEY": "test-key",
         "ANTHROPIC_API_KEY": "test-api-key",
-    }), patch("services.roadmap_service.create_client") as mock_sb, \
+        "INTERNAL_API_KEY": "test-internal-key-long-enough",
+    }
+    with patch.dict("os.environ", env), \
+         patch("services.roadmap_service.create_client") as mock_sb, \
          patch("services.roadmap_service.Anthropic") as mock_anthropic:
+
+        # Clear the cached settings so get_settings() re-reads our env
+        from config import get_settings
+        get_settings.cache_clear()
 
         mock_supabase = MagicMock()
         mock_sb.return_value = mock_supabase
@@ -34,7 +44,8 @@ def service():
         svc = RoadmapService()
         svc.supabase = mock_supabase
         svc.anthropic = mock_client
-        return svc
+        yield svc
+        get_settings.cache_clear()
 
 
 @pytest.fixture
