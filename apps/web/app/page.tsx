@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -10,6 +11,49 @@ import {
   ArrowRight,
   Globe,
 } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Treppd — Navigate Germany. Step by step.',
+  description:
+    'AI-powered bureaucracy co-pilot for immigrants in Germany. Personalised roadmaps, form-filling guides, and document checklists — all in plain English, tailored to your visa type and city.',
+  keywords: [
+    'Germany immigration',
+    'visa guide',
+    'Anmeldung',
+    'Aufenthaltserlaubnis',
+    'Auslaenderbehoerde',
+    'residence permit',
+    'international students Germany',
+    'skilled worker visa',
+  ],
+  openGraph: {
+    title: 'Treppd — Navigate Germany. Step by step.',
+    description:
+      'Personalised roadmaps, form guides, and document checklists for non-EU immigrants in Germany.',
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Treppd',
+    images: [
+      {
+        url: '/treppd-logo-vertical.png',
+        width: 283,
+        height: 357,
+        alt: 'Treppd logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Treppd — Navigate Germany. Step by step.',
+    description:
+      'AI-powered bureaucracy co-pilot for immigrants in Germany.',
+    images: ['/treppd-logo-vertical.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const features = [
   {
