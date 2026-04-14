@@ -8,12 +8,15 @@ import {
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
 import { ProfilesService } from './profiles.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
+@ApiTags('profiles')
+@ApiBearerAuth()
 @Controller('profiles')
 @UseGuards(JwtAuthGuard)
 export class ProfilesController {

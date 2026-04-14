@@ -7,11 +7,14 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
 import { RoadmapService } from './roadmap.service';
 import { CompleteStepDto } from './dto/complete-step.dto';
 
+@ApiTags('roadmap')
+@ApiBearerAuth()
 @Controller('roadmap')
 @UseGuards(JwtAuthGuard)
 export class RoadmapController {
