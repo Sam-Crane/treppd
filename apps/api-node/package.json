@@ -83,9 +83,19 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "roadmap/roadmap.service.ts",
+      "profiles/profiles.service.ts",
+      "documents/documents.service.ts"
     ],
     "coverageDirectory": "../coverage",
+    "coverageThreshold": {
+      "**/roadmap/roadmap.service.ts": {
+        "statements": 60,
+        "branches": 45,
+        "functions": 55,
+        "lines": 60
+      }
+    },
     "testEnvironment": "node"
   }
 }
