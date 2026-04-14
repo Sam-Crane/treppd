@@ -44,13 +44,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Redirect logged-in users away from auth pages
+  // Redirect logged-in users away from auth pages and marketing landing
   const authPaths = ['/login', '/register'];
   const isAuthPage = authPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   );
+  const isLandingPage = request.nextUrl.pathname === '/';
 
-  if (isAuthPage && session) {
+  if ((isAuthPage || isLandingPage) && session) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
@@ -69,5 +70,6 @@ export const config = {
     '/onboarding/:path*',
     '/login',
     '/register',
+    '/',
   ],
 };

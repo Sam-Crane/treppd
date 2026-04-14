@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Patch, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
 import { RoadmapService } from './roadmap.service';
+import { CompleteStepDto } from './dto/complete-step.dto';
 
 @Controller('roadmap')
 @UseGuards(JwtAuthGuard)
@@ -22,8 +31,10 @@ export class RoadmapController {
   completeStep(
     @CurrentUser() user: { userId: string },
     @Param('slug') slug: string,
+    @Body() body: CompleteStepDto,
   ) {
-    return this.roadmapService.completeStep(user.userId, slug);
+    const completed = body.completed ?? true;
+    return this.roadmapService.setStepCompletion(user.userId, slug, completed);
   }
 
   @Get('progress')
