@@ -1,0 +1,67 @@
+{
+  "name": "Treppd Monorepo",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.extend.yml"],
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "nodeGypDependencies": true
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  "forwardPorts": [3000, 3001, 8000, 6379, 54321, 54322, 54323],
+  "portsAttributes": {
+    "3000": { "label": "Next.js Web", "onAutoForward": "openPreview" },
+    "3001": { "label": "NestJS API", "onAutoForward": "notify" },
+    "8000": { "label": "FastAPI (internal)", "onAutoForward": "silent" },
+    "6379": { "label": "Redis", "onAutoForward": "silent" },
+    "54321": { "label": "Supabase API", "onAutoForward": "notify" },
+    "54322": { "label": "Supabase DB", "onAutoForward": "silent" },
+    "54323": { "label": "Supabase Studio", "onAutoForward": "notify" }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
+        "supabase.vscode-supabase-extension",
+        "firsttris.vscode-jest-runner",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "files.eol": "\n",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+
+  "remoteEnv": {
+    "PATH": "/home/vscode/.local/bin:${containerEnv:PATH}"
+  }
+}

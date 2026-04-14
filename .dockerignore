@@ -1,0 +1,70 @@
+# Dependencies (will be installed inside the container)
+node_modules
+**/node_modules
+.pnp
+.pnp.js
+
+# Python
+__pycache__
+**/__pycache__
+*.py[cod]
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# Build outputs
+.next
+**/.next
+dist
+**/dist
+build
+**/build
+.turbo
+**/.turbo
+
+# Environment files (secrets should never be baked into images)
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+
+# Git
+.git
+.gitignore
+
+# Docs and assets (not needed at runtime)
+docs
+pic
+README.md
+
+# Testing
+coverage
+**/coverage
+.nyc_output
+.pytest_cache
+**/.pytest_cache
+.ruff_cache
+**/.ruff_cache
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# PWA generated files
+**/public/sw.js
+**/public/workbox-*.js
+
+# CI
+.github
+
+# Misc
+*.tsbuildinfo

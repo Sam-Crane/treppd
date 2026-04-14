@@ -1,0 +1,10 @@
+# Devcontainer-only additions: workspace service for Codespaces
+# The app services are defined in the root docker-compose.yml
+services:
+  workspace:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu-22.04
+    volumes:
+      - ..:/workspace:cached
+      - /var/run/docker.sock:/var/run/docker-host.sock
+    command: sleep infinity
+    network_mode: service:api-node
