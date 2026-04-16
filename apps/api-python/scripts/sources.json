@@ -1,0 +1,217 @@
+{
+  "_comment": "Curated knowledge sources for the RAG chat. Manually selected pages from authoritative German government and partner sources. Each entry's metadata.visa_types and bundeslaender are used by match_knowledge_chunks to filter retrieval.",
+  "_metadata_rules": {
+    "visa_types": "Empty array means applies to ALL visa types. Otherwise: subset of {student, work, job_seeker, family, freelance, au_pair}.",
+    "bundeslaender": "Empty array means applies to ALL Bundeslaender. Otherwise: e.g. ['DE-BY'] for Bavaria-only.",
+    "section": "Free-text label for the page's main topic. Used as a soft hint in retrieval logs."
+  },
+  "sources": [
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/work-visa",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Work visa overview"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/eu-blue-card",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "EU Blue Card"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/study-visa",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Student visa"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/job-seeker-visa",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["job_seeker"],
+        "bundeslaender": [],
+        "section": "Job seeker visa"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/family-reunion",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["family"],
+        "bundeslaender": [],
+        "section": "Family reunion"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/freelance-visa",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["freelance"],
+        "bundeslaender": [],
+        "section": "Freelance / self-employment visa"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/housing/registration",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Anmeldung (address registration)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/money-insurance/health-insurance",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Health insurance"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/money-insurance/bank-account",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Bank account opening"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/living-in-germany/blocked-account",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Blocked account (Sperrkonto)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/working-in-germany/taxes",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["work", "freelance"],
+        "bundeslaender": [],
+        "section": "Tax ID + income tax"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/working-in-germany/social-security",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Social security number"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Migrathek/Aufenthaltstitel/aufenthaltstitel-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Residence titles overview"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Studium/studium-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Studying in Germany (BAMF)"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Arbeit/Fachkraefte/fachkraefte-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Skilled workers (Fachkraft)"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/Familie/familie-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": ["family"],
+        "bundeslaender": [],
+        "section": "Family reunification (BAMF)"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/enrolment/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "University enrolment"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/visa/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Student visa application (DAAD)"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/study-and-research-in-germany/plan-your-studies/health-insurance/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Student health insurance"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/study-and-research-in-germany/first-steps-germany/registration-formalities/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Registration formalities for students"
+      }
+    },
+    {
+      "url": "https://www.berlin.de/labo/willkommen-in-berlin/",
+      "source_type": "berlin_labo",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BE"],
+        "section": "Berlin Auslaenderbehoerde welcome"
+      }
+    },
+    {
+      "url": "https://www.muenchen.de/rathaus/Stadtverwaltung/Kreisverwaltungsreferat/Auslaenderbehoerde.html",
+      "source_type": "munich_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "Munich KVR Auslaenderbehoerde"
+      }
+    },
+    {
+      "url": "https://www.rundfunkbeitrag.de/welcome/englisch/index_ger.html",
+      "source_type": "rundfunkbeitrag",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Rundfunkbeitrag (radio/TV tax)"
+      }
+    }
+  ]
+}

@@ -128,4 +128,76 @@ export class PythonService {
   ): Promise<Record<string, unknown> | null> {
     return this.fetchWithRetry('/ai/explain-field', payload);
   }
+
+  /**
+   * Open a streaming connection to the FastAPI /ai/chat/stream endpoint
+   * and return the raw SSE body as a ReadableStream. The caller is
+   * responsible for parsing the `data:` frames and forwarding them.
+   *
+   * Unlike fetchWithRetry, we do NOT retry once the stream is open —
+   * partial output reset would break the user-visible UX. We do retry
+   * the initial connection on network errors.
+   */
+  async chatStream(
+    payload: Record<string, unknown>,
+  ): Promise<ReadableStream<Uint8Array> | null> {
+    const url = `${this.baseUrl}/ai/chat/stream`;
+    const requestId = this.getRequestId();
+    const maxAttempts = 2;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
+          'X-Internal-Key': this.apiKey,
+        };
+        if (requestId) headers['X-Request-ID'] = requestId;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          this.logger.warn(
+            {
+              path: '/ai/chat/stream',
+              status: response.status,
+              attempt,
+              requestId,
+            },
+            'Python streaming endpoint returned non-OK status',
+          );
+          if (response.status < 500 || attempt === maxAttempts - 1) {
+            return null;
+          }
+          continue;
+        }
+
+        if (!response.body) {
+          this.logger.warn('Python streaming response had no body');
+          return null;
+        }
+
+        return response.body;
+      } catch (error) {
+        const message = (error as Error).message;
+        this.logger.warn(
+          {
+            path: '/ai/chat/stream',
+            attempt,
+            error: message,
+            requestId,
+          },
+          'Failed to open Python streaming connection',
+        );
+        if (attempt === maxAttempts - 1) return null;
+        await sleep(500);
+      }
+    }
+
+    return null;
+  }
 }
