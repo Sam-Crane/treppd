@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for NestJS API in Turborepo monorepo
 # Built from the repo root context (docker-compose uses context: .)
 
-# --- Dependencies stage ---
+# --- Dependencies stage (full, for building) ---
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
@@ -12,6 +12,19 @@ COPY packages/shared-types/package.json ./packages/shared-types/
 
 RUN npm ci --workspaces --include-workspace-root
 
+# --- Production dependencies stage (for the runner, no devDeps) ---
+FROM node:20-alpine AS prod-deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+COPY package.json package-lock.json turbo.json ./
+COPY apps/api-node/package.json ./apps/api-node/
+COPY packages/shared-types/package.json ./packages/shared-types/
+
+# --ignore-scripts skips the root `prepare: husky` hook (husky is a devDep
+# that's excluded here, and git hooks aren't useful inside a container anyway).
+RUN npm ci --workspaces --include-workspace-root --omit=dev --ignore-scripts
+
 # --- Builder stage ---
 FROM node:20-alpine AS builder
 WORKDIR /app
@@ -19,6 +32,10 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json /app/package-lock.json /app/turbo.json ./
 COPY packages ./packages
 COPY apps/api-node ./apps/api-node
+# Workspace-local node_modules hold deps that weren't hoisted (e.g. @nestjs/cli).
+# Copy after the source COPYs so they aren't clobbered (source COPYs respect
+# .dockerignore and exclude node_modules, so this is safe).
+COPY --from=deps /app/apps/api-node/node_modules ./apps/api-node/node_modules
 
 WORKDIR /app/apps/api-node
 RUN npm run build
@@ -35,7 +52,10 @@ RUN apk add --no-cache wget \
 
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/dist ./dist
 COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/package.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/node_modules ./node_modules
+# Runtime deps are hoisted to the workspace root; pull them from the prod-deps
+# stage (which skipped devDeps). The nested apps/api-node/node_modules only
+# holds @nestjs/cli (build-time), so it's intentionally not copied.
+COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
 
 USER nestjs
 EXPOSE 3001
