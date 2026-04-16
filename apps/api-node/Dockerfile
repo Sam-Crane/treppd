@@ -32,9 +32,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/package.json /app/package-lock.json /app/turbo.json ./
 COPY packages ./packages
 COPY apps/api-node ./apps/api-node
-# Workspace-local node_modules hold deps that weren't hoisted (e.g. @nestjs/cli).
-# Copy after the source COPYs so they aren't clobbered (source COPYs respect
-# .dockerignore and exclude node_modules, so this is safe).
+# Workspace-local node_modules hold deps that weren't hoisted (e.g. @nestjs/cli,
+# jose). Copy after the source COPYs so they aren't clobbered (source COPYs
+# respect .dockerignore and exclude node_modules, so this is safe).
 COPY --from=deps /app/apps/api-node/node_modules ./apps/api-node/node_modules
 
 WORKDIR /app/apps/api-node
@@ -50,14 +50,17 @@ RUN apk add --no-cache wget \
     && addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nestjs
 
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/package.json ./
-# Runtime deps are hoisted to the workspace root; pull them from the prod-deps
-# stage (which skipped devDeps). The nested apps/api-node/node_modules only
-# holds @nestjs/cli (build-time), so it's intentionally not copied.
+# Preserve the monorepo layout so Node's module resolution walks both
+# /app/apps/api-node/node_modules (workspace-local, e.g. jose) and
+# /app/node_modules (hoisted) when resolving requires from dist/.
+COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/dist ./apps/api-node/dist
+COPY --from=builder --chown=nestjs:nodejs /app/apps/api-node/package.json ./apps/api-node/
+COPY --from=prod-deps --chown=nestjs:nodejs /app/package.json /app/package-lock.json ./
 COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=nestjs:nodejs /app/apps/api-node/node_modules ./apps/api-node/node_modules
 
 USER nestjs
+WORKDIR /app/apps/api-node
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=20s \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
