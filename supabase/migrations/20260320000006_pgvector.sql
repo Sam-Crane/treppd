@@ -8,13 +8,17 @@
 -- Embedding dimension is 1024 (Voyage AI voyage-3 model). DO NOT change
 -- this without re-embedding the entire corpus — the dimension is fixed
 -- at table creation time.
+--
+-- Supabase installs pgvector into the `extensions` schema (not `public`)
+-- and recommends schema-qualifying every type and operator class so the
+-- migration is independent of the runtime search_path.
 
-CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS vector WITH SCHEMA extensions;
 
 CREATE TABLE IF NOT EXISTS public.knowledge_chunks (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   content     text NOT NULL,
-  embedding   vector(1024) NOT NULL,
+  embedding   extensions.vector(1024) NOT NULL,
   source      text NOT NULL,            -- e.g. "https://www.bamf.de/.../article.html"
   source_type text,                      -- "bamf" | "make_it_in_germany" | "manual"
   metadata    jsonb DEFAULT '{}'::jsonb, -- { visa_types: [], bundeslaender: [], section: "..." }
@@ -32,7 +36,7 @@ ALTER TABLE public.knowledge_chunks ENABLE ROW LEVEL SECURITY;
 -- start at 100 (good for ~100K rows) and tune later.
 CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_embedding
   ON public.knowledge_chunks
-  USING ivfflat (embedding vector_cosine_ops)
+  USING ivfflat (embedding extensions.vector_cosine_ops)
   WITH (lists = 100);
 
 -- Index for idempotent re-ingestion (DELETE WHERE source = ...).
@@ -60,8 +64,12 @@ CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_bundeslaender
 --
 -- The OR-with-empty-array logic mirrors how roadmap_steps.bundeslaender works
 -- elsewhere in the codebase: empty array = applies universally.
+--
+-- The `<=>` operator (cosine distance) is provided by the pgvector extension;
+-- it works without schema-qualification once the extension is installed,
+-- since operators are searched globally.
 CREATE OR REPLACE FUNCTION public.match_knowledge_chunks(
-  query_embedding vector(1024),
+  query_embedding extensions.vector(1024),
   match_threshold float,
   match_count int,
   filter_visa_type text DEFAULT NULL,
