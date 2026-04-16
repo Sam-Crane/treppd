@@ -10,7 +10,10 @@ export const envSchema = z.object({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_KEY: z.string().min(1),
-  SUPABASE_JWT_SECRET: z.string().min(1),
+  // Legacy HS256 JWT secret — no longer required (we validate tokens via
+  // supabase.auth.getUser() instead of local signature verification).
+  // Kept optional for backwards compatibility / future use.
+  SUPABASE_JWT_SECRET: z.string().optional(),
   DATABASE_URL: z.string().url().optional(),
 
   // Internal service communication
