@@ -65,9 +65,11 @@ CREATE INDEX IF NOT EXISTS idx_knowledge_chunks_bundeslaender
 -- The OR-with-empty-array logic mirrors how roadmap_steps.bundeslaender works
 -- elsewhere in the codebase: empty array = applies universally.
 --
--- The `<=>` operator (cosine distance) is provided by the pgvector extension;
--- it works without schema-qualification once the extension is installed,
--- since operators are searched globally.
+-- IMPORTANT: We pin search_path to {public, extensions} so the `<=>`
+-- cosine-distance operator (defined by pgvector in the extensions schema)
+-- resolves inside the function body. Supabase functions otherwise run with
+-- a restricted search_path for security and would fail with
+-- "operator does not exist: extensions.vector <=> extensions.vector".
 CREATE OR REPLACE FUNCTION public.match_knowledge_chunks(
   query_embedding extensions.vector(1024),
   match_threshold float,
@@ -85,6 +87,7 @@ RETURNS TABLE (
 )
 LANGUAGE sql
 STABLE
+SET search_path = public, extensions
 AS $$
   SELECT
     kc.id,
