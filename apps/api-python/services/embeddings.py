@@ -33,6 +33,20 @@ EMBEDDING_DIMENSION = 1024
 MAX_BATCH_SIZE = 128
 MAX_BATCH_TOKENS = 120_000
 
+# Voyage rate limits:
+# - Free tier WITHOUT a payment method: 3 RPM (one request every 20s)
+# - Free tier WITH a payment method: 2000 RPM (no perceptible pacing needed)
+#
+# Set VOYAGE_FREE_TIER=1 in .env to opt into the conservative pacing path.
+# When enabled: batch=1 chunk per request, sleep 22s between requests, and
+# back off retries far enough to clear the per-minute window.
+import os  # noqa: E402
+
+FREE_TIER = os.environ.get("VOYAGE_FREE_TIER", "").strip() in ("1", "true", "yes")
+PACING_BATCH_SIZE = 1 if FREE_TIER else MAX_BATCH_SIZE
+PACING_SLEEP_SECONDS = 22.0 if FREE_TIER else 0.25
+PACING_RETRY_BASE = 25.0 if FREE_TIER else 2.0
+
 
 class EmbeddingsServiceUnavailable(RuntimeError):
     """Raised when VOYAGE_API_KEY is missing or the client refuses."""
@@ -96,7 +110,8 @@ class EmbeddingsService:
             return []
 
         embeddings: list[list[float]] = []
-        for batch in _batched(texts, MAX_BATCH_SIZE):
+        batches = list(_batched(texts, PACING_BATCH_SIZE))
+        for i, batch in enumerate(batches):
             result = self._with_retry(
                 lambda b=batch: client.embed(
                     texts=b,
@@ -105,13 +120,14 @@ class EmbeddingsService:
                 ),
             )
             embeddings.extend(result.embeddings)
-            # Free tier ~3 RPM; sleep keeps batched ingestion safe.
-            time.sleep(0.25)
+            # Sleep BETWEEN requests (not after the last) to fit rate limits.
+            if i < len(batches) - 1:
+                time.sleep(PACING_SLEEP_SECONDS)
 
         return embeddings
 
     @staticmethod
-    def _with_retry(fn, max_retries: int = 3, base_delay: float = 2.0):
+    def _with_retry(fn, max_retries: int = 3, base_delay: float = PACING_RETRY_BASE):
         """Retry on rate-limit errors with exponential backoff."""
         last_error: Exception | None = None
         for attempt in range(max_retries + 1):
