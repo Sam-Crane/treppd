@@ -10,10 +10,24 @@
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
-    "test": "turbo test"
+    "test": "turbo test",
+    "prepare": "husky"
   },
   "packageManager": "npm@11.6.0",
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "turbo": "^2.4.0"
+  },
+  "lint-staged": {
+    "apps/web/**/*.{ts,tsx}": [
+      "bash -c 'cd apps/web && npx eslint --fix'"
+    ],
+    "apps/api-node/**/*.ts": [
+      "bash -c 'cd apps/api-node && npx eslint --fix'"
+    ],
+    "apps/api-python/**/*.py": [
+      "bash -c 'cd apps/api-python && python3 -m ruff check --fix'"
+    ]
   }
 }

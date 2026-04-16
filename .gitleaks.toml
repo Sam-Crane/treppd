@@ -1,0 +1,25 @@
+# Gitleaks configuration for Treppd.
+# Extends the default ruleset with a narrow allowlist for test-fixture files
+# that contain intentional placeholder "secrets". Real source code is still
+# scanned with the full default rules.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test fixture files with intentional placeholder values"
+
+# Any value starting with "test-" is by convention a stub. The generic-api-key
+# rule catches high-entropy strings; this regex ignores only those that are
+# clearly marked as test data.
+regexes = [
+  '''test-[a-z0-9-]{8,}''',
+]
+
+# Explicit file-path allowlist for the two test setup files. These contain
+# hardcoded stub values for every required env var so Jest/pytest can load
+# the modules under test without relying on real credentials.
+paths = [
+  '''apps/api-node/test/setup-env\.ts''',
+  '''apps/api-python/tests/conftest\.py''',
+]

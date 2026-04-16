@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 import { ProgressCircle } from '@/components/dashboard/progress-circle';
@@ -10,6 +10,9 @@ import {
   FileText,
   Map,
   AlertTriangle,
+  Compass,
+  Loader2,
+  ArrowRight,
 } from 'lucide-react';
 
 interface RoadmapStep {
@@ -32,20 +35,83 @@ interface ProgressData {
 }
 
 export default function DashboardPage() {
+  const queryClient = useQueryClient();
+
   const roadmapQuery = useQuery<RoadmapData>({
     queryKey: ['roadmap'],
     queryFn: () => api.get('/roadmap'),
+    retry: (failureCount, error) => {
+      // Don't retry 404 (profile or roadmap missing) — show empty state
+      if (error.message.includes('404')) return false;
+      return failureCount < 1;
+    },
   });
 
   const progressQuery = useQuery<ProgressData>({
     queryKey: ['progress'],
     queryFn: () => api.get('/roadmap/progress'),
+    retry: false,
+  });
+
+  const generateMutation = useMutation({
+    mutationFn: () => api.post('/roadmap/generate'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roadmap'] });
+      queryClient.invalidateQueries({ queryKey: ['progress'] });
+    },
   });
 
   const isLoading = roadmapQuery.isLoading || progressQuery.isLoading;
 
   if (isLoading) {
     return <DashboardSkeleton />;
+  }
+
+  // Empty state: user has a profile but no roadmap yet
+  const hasNoRoadmap =
+    roadmapQuery.isError ||
+    !roadmapQuery.data ||
+    !roadmapQuery.data.steps ||
+    roadmapQuery.data.steps.length === 0;
+
+  if (hasNoRoadmap) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="w-16 h-16 rounded-full bg-blue-50 text-[#1a365d] flex items-center justify-center mb-4">
+          <Compass className="w-8 h-8" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+          Generate your first roadmap
+        </h1>
+        <p className="mt-3 text-gray-600 max-w-md">
+          We&apos;ll build a personalised step-by-step journey based on your
+          visa type, Bundesland, and goal. This takes under 10 seconds.
+        </p>
+        <button
+          onClick={() => generateMutation.mutate()}
+          disabled={generateMutation.isPending}
+          className="mt-6 inline-flex items-center gap-2 bg-[#1a365d] text-white text-base font-medium px-6 py-3 rounded-lg hover:bg-[#2a4a75] disabled:opacity-60 transition-colors"
+        >
+          {generateMutation.isPending ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Generating your roadmap…
+            </>
+          ) : (
+            <>
+              Generate Roadmap
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
+        </button>
+        {generateMutation.isError && (
+          <div className="mt-4 flex items-center gap-2 text-sm text-red-600">
+            <AlertTriangle className="w-4 h-4" />
+            Couldn&apos;t generate roadmap. Please try again.
+          </div>
+        )}
+      </div>
+    );
   }
 
   const progress = progressQuery.data;

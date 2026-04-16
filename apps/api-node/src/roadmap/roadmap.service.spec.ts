@@ -278,6 +278,61 @@ describe('RoadmapService', () => {
         completed_steps: ['anmeldung'],
       });
     });
+
+    it('should remove slug from completed_steps when completed=false', async () => {
+      const updateMock = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+      });
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'user_profiles') {
+          const builder = createMockQueryBuilder({
+            completed_steps: ['anmeldung', 'health_insurance'],
+          });
+          builder.update = updateMock;
+          return builder;
+        }
+        if (table === 'user_roadmaps') {
+          return createMockQueryBuilder({
+            steps: [{ slug: 'anmeldung' }, { slug: 'health_insurance' }],
+          });
+        }
+        return createMockQueryBuilder(null);
+      });
+
+      await service.setStepCompletion('user-123', 'anmeldung', false);
+
+      // 'anmeldung' should be removed, 'health_insurance' kept
+      expect(updateMock).toHaveBeenCalledWith({
+        completed_steps: ['health_insurance'],
+      });
+    });
+
+    it('should handle uncomplete of slug not in array (idempotent)', async () => {
+      const updateMock = jest.fn().mockReturnValue({
+        eq: jest.fn().mockResolvedValue({ data: null, error: null }),
+      });
+
+      mockFrom.mockImplementation((table: string) => {
+        if (table === 'user_profiles') {
+          const builder = createMockQueryBuilder({
+            completed_steps: ['anmeldung'],
+          });
+          builder.update = updateMock;
+          return builder;
+        }
+        if (table === 'user_roadmaps') {
+          return createMockQueryBuilder({ steps: [{ slug: 'anmeldung' }] });
+        }
+        return createMockQueryBuilder(null);
+      });
+
+      await service.setStepCompletion('user-123', 'not_in_list', false);
+
+      expect(updateMock).toHaveBeenCalledWith({
+        completed_steps: ['anmeldung'],
+      });
+    });
   });
 
   describe('getProgress', () => {

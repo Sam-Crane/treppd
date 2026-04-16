@@ -10,6 +10,15 @@ interface CompleteStepButtonProps {
   disabled?: boolean;
 }
 
+interface ProfileData {
+  completed_steps: string[];
+  [key: string]: unknown;
+}
+
+interface MutationContext {
+  previousProfile: ProfileData | undefined;
+}
+
 export function CompleteStepButton({
   slug,
   isCompleted,
@@ -17,12 +26,45 @@ export function CompleteStepButton({
 }: CompleteStepButtonProps) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  const mutation = useMutation<unknown, Error, void, MutationContext>({
     mutationFn: () =>
       api.patch(`/roadmap/steps/${slug}/complete`, {
         completed: !isCompleted,
       }),
-    onSuccess: () => {
+    onMutate: async () => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['profile'] });
+
+      // Snapshot previous value
+      const previousProfile = queryClient.getQueryData<ProfileData>(['profile']);
+
+      // Optimistically update profile.completed_steps
+      if (previousProfile) {
+        const current = Array.isArray(previousProfile.completed_steps)
+          ? previousProfile.completed_steps
+          : [];
+        const next = isCompleted
+          ? current.filter((s) => s !== slug)
+          : current.includes(slug)
+            ? current
+            : [...current, slug];
+
+        queryClient.setQueryData<ProfileData>(['profile'], {
+          ...previousProfile,
+          completed_steps: next,
+        });
+      }
+
+      return { previousProfile };
+    },
+    onError: (_err, _vars, context) => {
+      // Roll back to previous value
+      if (context?.previousProfile) {
+        queryClient.setQueryData(['profile'], context.previousProfile);
+      }
+    },
+    onSettled: () => {
+      // Always refetch to sync with server
       queryClient.invalidateQueries({ queryKey: ['roadmap'] });
       queryClient.invalidateQueries({ queryKey: ['progress'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });

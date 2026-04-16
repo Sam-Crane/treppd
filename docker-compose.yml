@@ -3,6 +3,13 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
+      # NEXT_PUBLIC_* vars must be build-time so Next.js inlines them into
+      # the client bundle. Also passed as runtime env below for SSR and
+      # server-side features that read them at request time.
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     ports:
       - '3000:3000'
     environment:

@@ -14,8 +14,13 @@ port = 54323
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000/dashboard"]
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "http://localhost:3000/onboarding",
+  "http://localhost:3000/reset-password",
+  "http://localhost:3000/dashboard",
+]
 
 [auth.email]
 enable_signup = true
-enable_confirmations = false
+enable_confirmations = true

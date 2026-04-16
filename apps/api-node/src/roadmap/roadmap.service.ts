@@ -125,7 +125,7 @@ export class RoadmapService {
     };
   }
 
-  async completeStep(userId: string, slug: string) {
+  async setStepCompletion(userId: string, slug: string, completed: boolean) {
     const { data: profile } = await this.supabase
       .getClient()
       .from('user_profiles')
@@ -136,15 +136,26 @@ export class RoadmapService {
     const existing = (profile as Record<string, unknown> | null)
       ?.completed_steps;
     const completedArr = Array.isArray(existing) ? (existing as string[]) : [];
-    const completed = [...new Set([...completedArr, slug])];
+
+    let nextCompleted: string[];
+    if (completed) {
+      nextCompleted = [...new Set([...completedArr, slug])];
+    } else {
+      nextCompleted = completedArr.filter((s) => s !== slug);
+    }
 
     await this.supabase
       .getClient()
       .from('user_profiles')
-      .update({ completed_steps: completed })
+      .update({ completed_steps: nextCompleted })
       .eq('user_id', userId);
 
     return this.getProgress(userId);
+  }
+
+  /** @deprecated Use setStepCompletion. Retained for backwards-compatible tests. */
+  async completeStep(userId: string, slug: string) {
+    return this.setStepCompletion(userId, slug, true);
   }
 
   async getProgress(userId: string) {
