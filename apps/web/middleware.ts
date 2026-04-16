@@ -45,7 +45,9 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect logged-in users away from auth pages and marketing landing
-  const authPaths = ['/login', '/register'];
+  // (but NOT from /verify-email, /reset-password, /auth/callback — those
+  // have their own logic for handling intermediate session states).
+  const authPaths = ['/login', '/register', '/forgot-password'];
   const isAuthPage = authPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path),
   );
@@ -70,6 +72,7 @@ export const config = {
     '/onboarding/:path*',
     '/login',
     '/register',
+    '/forgot-password',
     '/',
   ],
 };
