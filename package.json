@@ -29,5 +29,8 @@
     "apps/api-python/**/*.py": [
       "bash -c 'cd apps/api-python && python3 -m ruff check --fix'"
     ]
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.3"
   }
 }
