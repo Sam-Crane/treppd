@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { ServiceUnavailableException } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
@@ -5,7 +6,9 @@ import { NotificationsService } from './notifications.service';
 import { PushService } from './push.service';
 import { SupabaseService } from '../supabase/supabase.service';
 
-function buildChain(result: { data: unknown; error: unknown } = { data: null, error: null }) {
+function buildChain(
+  result: { data: unknown; error: unknown } = { data: null, error: null },
+) {
   const chain: Record<string, jest.Mock> = {};
   chain.select = jest.fn().mockReturnValue(chain);
   chain.eq = jest.fn().mockReturnValue(chain);
@@ -18,7 +21,11 @@ function buildChain(result: { data: unknown; error: unknown } = { data: null, er
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
-  let pushService: { isReady: jest.Mock; send: jest.Mock; getPublicKey: jest.Mock };
+  let pushService: {
+    isReady: jest.Mock;
+    send: jest.Mock;
+    getPublicKey: jest.Mock;
+  };
   let supabase: { getClient: jest.Mock };
   let chain: ReturnType<typeof buildChain>;
 
@@ -40,7 +47,10 @@ describe('NotificationsService', () => {
         NotificationsService,
         { provide: SupabaseService, useValue: supabase },
         { provide: PushService, useValue: pushService },
-        { provide: Logger, useValue: { warn: jest.fn(), log: jest.fn(), error: jest.fn() } },
+        {
+          provide: Logger,
+          useValue: { warn: jest.fn(), log: jest.fn(), error: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -138,7 +148,9 @@ describe('NotificationsService', () => {
               }
               return c;
             }),
-            maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+            maybeSingle: jest
+              .fn()
+              .mockResolvedValue({ data: null, error: null }),
             insert: jest.fn().mockResolvedValue({ data: null, error: null }),
             delete: jest.fn().mockReturnValue(c),
           };
@@ -178,7 +190,9 @@ describe('NotificationsService', () => {
             }
             return c;
           });
-          c.maybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
+          c.maybeSingle = jest
+            .fn()
+            .mockResolvedValue({ data: null, error: null });
           c.insert = jest.fn().mockResolvedValue({ data: null, error: null });
           c.delete = jest.fn().mockReturnValue(c);
           return c;
@@ -226,11 +240,19 @@ describe('NotificationsService', () => {
             }
             return c;
           });
-          c.maybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
-          c.insert = jest.fn().mockImplementation((row: Record<string, unknown>) => {
-            inserts.push(row);
-            return { execute: jest.fn().mockResolvedValue({ data: null, error: null }) };
-          });
+          c.maybeSingle = jest
+            .fn()
+            .mockResolvedValue({ data: null, error: null });
+          c.insert = jest
+            .fn()
+            .mockImplementation((row: Record<string, unknown>) => {
+              inserts.push(row);
+              return {
+                execute: jest
+                  .fn()
+                  .mockResolvedValue({ data: null, error: null }),
+              };
+            });
           c.delete = jest.fn().mockReturnValue(c);
           return c;
         }),
@@ -241,7 +263,7 @@ describe('NotificationsService', () => {
       supabase.getClient.mockReturnValue(client);
 
       // Patch insert return so `.then` works (Promise.resolve)
-      (client.from as jest.Mock).mockImplementation((table: string) => {
+      client.from.mockImplementation((table: string) => {
         const c: Record<string, jest.Mock> = {};
         c.select = jest.fn().mockReturnValue(c);
         c.eq = jest.fn().mockImplementation(() => {
@@ -260,11 +282,15 @@ describe('NotificationsService', () => {
           }
           return c;
         });
-        c.maybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
-        c.insert = jest.fn().mockImplementation((row: Record<string, unknown>) => {
-          inserts.push(row);
-          return Promise.resolve({ data: null, error: null });
-        });
+        c.maybeSingle = jest
+          .fn()
+          .mockResolvedValue({ data: null, error: null });
+        c.insert = jest
+          .fn()
+          .mockImplementation((row: Record<string, unknown>) => {
+            inserts.push(row);
+            return Promise.resolve({ data: null, error: null });
+          });
         c.delete = jest.fn().mockReturnValue(c);
         return c;
       });

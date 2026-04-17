@@ -5,33 +5,66 @@ interface LogoProps {
   className?: string;
 }
 
-const SIZES = {
-  sm: { width: 110, height: 36, cls: 'h-6 w-auto' },
-  md: { width: 120, height: 40, cls: 'h-7 w-auto' },
-};
-
 /**
- * Centralized Treppd logo.
+ * Treppd logo — dual-render approach for dark mode.
  *
- * Uses a raw <img> instead of Next.js <Image> because the Image component
- * optimizes PNGs into JPEGs — adding a white background that destroys
- * transparency. When the dark-mode CSS filter (`brightness(0) invert(1)`)
- * runs on a JPEG with a white background, the entire rectangle becomes
- * solid white and the logo is invisible.
+ * The logo PNG has a solid background (not transparent), so CSS filter
+ * tricks (brightness + invert) produce a solid white rectangle instead
+ * of a visible logo. The only reliable fix is:
+ *   - Light mode: show the original PNG image
+ *   - Dark mode: show an SVG icon + styled text that inherits text color
  *
- * A raw <img> serves the original transparent PNG, so the filter correctly
- * produces white text on a transparent background.
+ * The SVG icon is a simplified version of the circuit-step icon from the
+ * brand assets (treppd.jpeg). The text uses the same weight and tracking.
  */
 export function Logo({ size = 'md', className }: LogoProps) {
-  const { width, height, cls } = SIZES[size];
+  const isSmall = size === 'sm';
+  const textSize = isSmall ? 'text-base' : 'text-lg';
+  const iconSize = isSmall ? 'h-5 w-5' : 'h-6 w-6';
+  const imgHeight = isSmall ? 'h-6' : 'h-7';
+
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/treppd-logo-horizontal.png"
-      alt="Treppd"
-      width={width}
-      height={height}
-      className={cn(cls, 'dark-logo-invert', className)}
-    />
+    <span className={cn('inline-flex items-center gap-1.5', className)}>
+      {/* Light mode: show the PNG */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/treppd-logo-horizontal.png"
+        alt="Treppd"
+        className={cn(imgHeight, 'w-auto dark:hidden')}
+      />
+
+      {/* Dark mode: SVG icon + text that inherits color */}
+      <span className="hidden items-center gap-1.5 dark:inline-flex">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={cn(iconSize, 'text-accent')}
+          aria-hidden="true"
+        >
+          {/* Simplified circuit/step icon matching the brand */}
+          <path d="M12 2v4" />
+          <path d="M12 18v4" />
+          <path d="M4 12h4" />
+          <path d="M16 12h4" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="12" cy="18" r="1.5" fill="currentColor" />
+          <circle cx="6" cy="12" r="1.5" fill="currentColor" />
+          <circle cx="18" cy="12" r="1.5" fill="currentColor" />
+        </svg>
+        <span
+          className={cn(
+            textSize,
+            'font-bold tracking-wider text-text-primary',
+          )}
+        >
+          TREPPD
+        </span>
+      </span>
+    </span>
   );
 }

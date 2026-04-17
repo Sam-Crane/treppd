@@ -35,7 +35,8 @@ export class PushService implements OnModuleInit {
   onModuleInit(): void {
     const publicKey = this.config.get<string>('VAPID_PUBLIC_KEY');
     const privateKey = this.config.get<string>('VAPID_PRIVATE_KEY');
-    const subject = this.config.get<string>('VAPID_SUBJECT') ?? 'mailto:hello@treppd.de';
+    const subject =
+      this.config.get<string>('VAPID_SUBJECT') ?? 'mailto:hello@treppd.de';
 
     if (!publicKey || !privateKey) {
       this.logger.warn(
@@ -91,10 +92,13 @@ export class PushService implements OnModuleInit {
     } catch (err) {
       const error = err as { statusCode?: number; message?: string };
       // 404 / 410 indicate the subscription is permanently dead.
-      const gone =
-        error.statusCode === 404 || error.statusCode === 410;
+      const gone = error.statusCode === 404 || error.statusCode === 410;
       this.logger.warn(
-        { statusCode: error.statusCode, gone, endpoint: subscription.endpoint.slice(0, 60) },
+        {
+          statusCode: error.statusCode,
+          gone,
+          endpoint: subscription.endpoint.slice(0, 60),
+        },
         gone
           ? 'Push subscription is gone; caller should delete the row'
           : 'Push send failed',

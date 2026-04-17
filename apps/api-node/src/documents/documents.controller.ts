@@ -12,10 +12,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
 import { DocumentsService } from './documents.service';
-import {
-  FinalizeUploadDto,
-  UploadUrlRequestDto,
-} from './dto/upload.dto';
+import { FinalizeUploadDto, UploadUrlRequestDto } from './dto/upload.dto';
 
 // Capping uploads per user per hour prevents accidental pathological loops
 // from client code. Storage bucket also limits to 10 MB per file server-side.

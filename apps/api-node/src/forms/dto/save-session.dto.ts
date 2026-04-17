@@ -1,4 +1,4 @@
-import { IsObject, ValidateNested } from 'class-validator';
+import { IsObject } from 'class-validator';
 
 /**
  * POST /forms/:form_code/session body.

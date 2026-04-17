@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method, @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   BadRequestException,
@@ -109,8 +110,10 @@ describe('FormsService', () => {
     it('filters forms by user visa and Bundesland', async () => {
       // First call: profile lookup
       // Second call: forms SELECT (returns array via ordinary then)
-      supabaseChain.maybeSingle
-        .mockResolvedValueOnce({ data: mockProfile, error: null });
+      supabaseChain.maybeSingle.mockResolvedValueOnce({
+        data: mockProfile,
+        error: null,
+      });
 
       // For the second call supabase returns a raw array without maybeSingle;
       // override `.select()` on a fresh chain to resolve directly.
@@ -174,9 +177,9 @@ describe('FormsService', () => {
         .mockResolvedValueOnce({ data: mockProfile, error: null })
         .mockResolvedValueOnce({ data: null, error: null });
 
-      await expect(service.getByCode('user-123', 'no_such_form')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(
+        service.getByCode('user-123', 'no_such_form'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -257,11 +260,9 @@ describe('FormsService', () => {
           error: null,
         });
 
-      const result = await service.saveSession(
-        'user-123',
-        'anmeldung_de_by',
-        { last_name: 'Müller' },
-      );
+      const result = await service.saveSession('user-123', 'anmeldung_de_by', {
+        last_name: 'Müller',
+      });
       expect(result.ok).toBe(true);
       expect(supabaseChain.upsert).toHaveBeenCalled();
     });

@@ -1,8 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  NotFoundException,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { AppointmentsService } from './appointments.service';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -85,7 +83,10 @@ describe('AppointmentsService', () => {
     expect(call.user_profile.bundesland).toBe('DE-BY');
     expect(call.user_profile.full_name).toBe('Anna Müller');
     expect(call.office_details.name).toBe('KVR München');
-    expect(call.office_details.requested_dates).toEqual(['2026-05-10', '2026-05-12']);
+    expect(call.office_details.requested_dates).toEqual([
+      '2026-05-10',
+      '2026-05-12',
+    ]);
 
     expect(result.subject).toContain('Terminanfrage');
     expect(result.body).toContain('Sehr geehrte');
@@ -113,7 +114,8 @@ describe('AppointmentsService', () => {
 
   it('passes empty arrays for requested_dates when not provided', async () => {
     (pythonService.appointmentEmail as jest.Mock).mockResolvedValue({
-      subject: 'S', body: 'B',
+      subject: 'S',
+      body: 'B',
     });
 
     await service.generate('user-123', {

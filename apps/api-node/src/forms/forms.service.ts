@@ -75,8 +75,8 @@ export class FormsService {
    */
   async listForUser(userId: string): Promise<FormSummary[]> {
     const profile = await this.getUserProfile(userId);
-    const visaType = String(profile.visa_type ?? '');
-    const bundesland = String(profile.bundesland ?? '');
+    const visaType = (profile.visa_type as string) ?? '';
+    const bundesland = (profile.bundesland as string) ?? '';
 
     const { data, error } = await this.supabase
       .getClient()
@@ -119,8 +119,8 @@ export class FormsService {
   /** Full form (including fields) for the Guide page. */
   async getByCode(userId: string, formCode: string): Promise<FormRecord> {
     const profile = await this.getUserProfile(userId);
-    const visaType = String(profile.visa_type ?? '');
-    const bundesland = String(profile.bundesland ?? '');
+    const visaType = (profile.visa_type as string) ?? '';
+    const bundesland = (profile.bundesland as string) ?? '';
 
     const { data, error } = await this.supabase
       .getClient()
@@ -130,10 +130,7 @@ export class FormsService {
       .maybeSingle();
 
     if (error) {
-      this.logger.warn(
-        { err: error, formCode },
-        'Failed to load form by code',
-      );
+      this.logger.warn({ err: error, formCode }, 'Failed to load form by code');
       throw new NotFoundException('Form not found.');
     }
     if (!data) {
@@ -291,10 +288,7 @@ export class FormsService {
   }
 
   /** Reset button / GDPR erasure. */
-  async clearSession(
-    userId: string,
-    formCode: string,
-  ): Promise<{ ok: true }> {
+  async clearSession(userId: string, formCode: string): Promise<{ ok: true }> {
     const { error } = await this.supabase
       .getClient()
       .from('form_sessions')

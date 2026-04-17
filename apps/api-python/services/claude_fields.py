@@ -25,9 +25,7 @@ from __future__ import annotations
 
 import logging
 import time
-import uuid
 from threading import Lock
-from typing import Any
 
 from anthropic import Anthropic
 from supabase import Client, create_client

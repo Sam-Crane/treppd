@@ -79,7 +79,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r apps/api-python/requirements.txt
+      - run: pip install -r apps/api-python/requirements-dev.txt
       - name: Run tests with coverage
         working-directory: apps/api-python
         run: |

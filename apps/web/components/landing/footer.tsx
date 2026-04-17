@@ -5,7 +5,7 @@ const LINKS = [
   {
     heading: 'Product',
     items: [
-      { href: '/features', label: 'Features' },
+      { href: '/#features', label: 'Features' },
       { href: '/pricing', label: 'Pricing' },
       { href: '/register', label: 'Get started' },
     ],

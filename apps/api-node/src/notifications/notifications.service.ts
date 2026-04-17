@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import {
-  Injectable,
-  ServiceUnavailableException,
-} from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { SupabaseService } from '../supabase/supabase.service';
 import { PushService, type PushPayload } from './push.service';
@@ -60,7 +57,9 @@ export class NotificationsService {
 
     if (error) {
       this.logger.warn({ err: error }, 'Failed to save push subscription');
-      throw new ServiceUnavailableException('Could not save your subscription.');
+      throw new ServiceUnavailableException(
+        'Could not save your subscription.',
+      );
     }
     return { ok: true };
   }
@@ -130,7 +129,8 @@ export class NotificationsService {
     const current = await this.getPreferences(userId);
     const merged: NotificationPreferences = {
       user_id: userId,
-      visa_expiry_enabled: dto.visa_expiry_enabled ?? current.visa_expiry_enabled,
+      visa_expiry_enabled:
+        dto.visa_expiry_enabled ?? current.visa_expiry_enabled,
       anmeldung_enabled: dto.anmeldung_enabled ?? current.anmeldung_enabled,
       roadmap_nudges_enabled:
         dto.roadmap_nudges_enabled ?? current.roadmap_nudges_enabled,
@@ -158,7 +158,10 @@ export class NotificationsService {
     notificationType: string,
     dedupeKey: string,
     payload: PushPayload,
-  ): Promise<{ sent: number; skipped: 'already-sent' | 'none-subscribed' | null }> {
+  ): Promise<{
+    sent: number;
+    skipped: 'already-sent' | 'none-subscribed' | null;
+  }> {
     // Dedupe check first
     const { data: existing } = await this.supabase
       .getClient()
@@ -189,14 +192,11 @@ export class NotificationsService {
     }
 
     if (sent > 0) {
-      await this.supabase
-        .getClient()
-        .from('notification_sent_log')
-        .insert({
-          user_id: userId,
-          notification_type: notificationType,
-          dedupe_key: dedupeKey,
-        });
+      await this.supabase.getClient().from('notification_sent_log').insert({
+        user_id: userId,
+        notification_type: notificationType,
+        dedupe_key: dedupeKey,
+      });
     }
 
     return { sent, skipped: null };

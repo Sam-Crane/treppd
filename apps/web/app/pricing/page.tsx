@@ -5,7 +5,7 @@ import { Check, Building2, GraduationCap, Zap } from 'lucide-react';
 import { TopNav } from '@/components/landing/top-nav';
 import { Footer } from '@/components/landing/footer';
 import { FinalCTA } from '@/components/landing/final-cta';
-import { Button, Card, Badge } from '@/components/ui';
+import { Button, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -79,14 +79,14 @@ const TIERS: Tier[] = [
 
 function TierCard({ tier }: { tier: Tier }) {
   return (
-    <Card
-      variant={tier.highlight ? 'elevated' : 'bordered'}
-      padding="lg"
+    <div
       className={cn(
-        'relative flex h-full flex-col',
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-default bg-surface p-6 transition-all hover:-translate-y-1 hover:shadow-lg',
         tier.highlight && 'ring-2 ring-accent',
       )}
     >
+      {/* Accent stripe */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent/30 to-accent/5" />
       {tier.highlight && (
         <Badge variant="info" className="absolute -top-2 right-4">
           Most popular
@@ -123,7 +123,7 @@ function TierCard({ tier }: { tier: Tier }) {
       >
         <Link href={tier.cta.href}>{tier.cta.label}</Link>
       </Button>
-    </Card>
+    </div>
   );
 }
 

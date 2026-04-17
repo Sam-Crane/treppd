@@ -17,8 +17,8 @@ const ALLOWED_MIME_TYPES = new Set([
   'image/heic',
   'image/heif',
 ]);
-const SIGNED_UPLOAD_TTL_SECONDS = 60 * 5;   // 5 min to finish upload
-const SIGNED_READ_TTL_SECONDS = 60 * 60;    // 1 hr to view
+const SIGNED_UPLOAD_TTL_SECONDS = 60 * 5; // 5 min to finish upload
+const SIGNED_READ_TTL_SECONDS = 60 * 60; // 1 hr to view
 
 export interface UploadUrlRequest {
   document_name_en: string;
@@ -87,7 +87,9 @@ export class DocumentsService {
     const { data: uploads } = await this.supabase
       .getClient()
       .from('user_documents')
-      .select('id, step_slug, document_name_en, storage_path, uploaded_at, mime_type, file_size_bytes, display_name')
+      .select(
+        'id, step_slug, document_name_en, storage_path, uploaded_at, mime_type, file_size_bytes, display_name',
+      )
       .eq('user_id', userId)
       .in('step_slug', stepSlugs);
 
@@ -266,7 +268,10 @@ export class DocumentsService {
     const { data: signed, error: signError } = await this.supabase
       .getClient()
       .storage.from(STORAGE_BUCKET)
-      .createSignedUrl((doc as { storage_path: string }).storage_path, SIGNED_READ_TTL_SECONDS);
+      .createSignedUrl(
+        (doc as { storage_path: string }).storage_path,
+        SIGNED_READ_TTL_SECONDS,
+      );
 
     if (signError || !signed) {
       throw new BadRequestException('Could not create a preview URL.');

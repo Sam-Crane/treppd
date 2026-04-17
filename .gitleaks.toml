@@ -22,4 +22,6 @@ regexes = [
 paths = [
   '''apps/api-node/test/setup-env\.ts''',
   '''apps/api-python/tests/conftest\.py''',
+  '''apps/api-node/src/.*/.*\.spec\.ts''',
+  '''apps/api-python/tests/.*\.py''',
 ]

@@ -5,10 +5,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
 import { AppointmentsService } from './appointments.service';
-import {
-  GenerateAppointmentEmailDto,
-  PROCESS_TYPES,
-} from './dto/generate.dto';
+import { GenerateAppointmentEmailDto, PROCESS_TYPES } from './dto/generate.dto';
 
 /**
  * Appointment email generator calls Claude per request; the Python side

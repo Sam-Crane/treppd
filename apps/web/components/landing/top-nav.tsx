@@ -9,7 +9,7 @@ import { Button, ThemeToggle } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
 const LINKS = [
-  { href: '/features', label: 'Features' },
+  { href: '/', label: 'Home' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/about', label: 'About' },
 ];

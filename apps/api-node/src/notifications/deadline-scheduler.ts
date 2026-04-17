@@ -55,7 +55,10 @@ export class DeadlineScheduler {
   }
 
   /** Core logic — exposed so it can be invoked manually for testing. */
-  async runScan(): Promise<{ profilesScanned: number; notificationsSent: number }> {
+  async runScan(): Promise<{
+    profilesScanned: number;
+    notificationsSent: number;
+  }> {
     const { data: profiles, error } = await this.supabase
       .getClient()
       .from('user_profiles')
