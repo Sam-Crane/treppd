@@ -1,16 +1,18 @@
 'use client';
 
 import {
-  GraduationCap,
   Briefcase,
+  GraduationCap,
+  Heart,
+  Laptop,
   Search,
   Users,
-  Laptop,
-  Heart,
+  type LucideIcon,
 } from 'lucide-react';
+
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { visaTypes, visaTypeLabels } from '@/lib/schemas/onboarding';
-import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const visaIcons: Record<string, LucideIcon> = {
   student: GraduationCap,
@@ -27,10 +29,10 @@ export function StepVisaType() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-text-primary">
           What type of visa do you have?
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-text-secondary">
           Select the visa type that best matches your situation.
         </p>
       </div>
@@ -45,25 +47,32 @@ export function StepVisaType() {
               key={type}
               type="button"
               onClick={() => updateFormData({ visa_type: type })}
-              className={`flex items-center gap-4 rounded-xl border-2 p-4 text-left transition-all ${
+              aria-pressed={isSelected}
+              className={cn(
+                'flex items-center gap-4 rounded-xl border p-4 text-left transition-all',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                 isSelected
-                  ? 'border-[#1a365d] bg-blue-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-              }`}
+                  ? 'border-accent bg-accent-subtle shadow-xs'
+                  : 'border-border-default bg-surface hover:border-border-strong hover:shadow-xs',
+              )}
             >
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors',
                   isSelected
-                    ? 'bg-[#1a365d] text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-subtle text-text-secondary',
+                )}
               >
                 <Icon className="h-5 w-5" />
               </div>
               <span
-                className={`text-sm font-medium ${
-                  isSelected ? 'text-[#1a365d]' : 'text-gray-700'
-                }`}
+                className={cn(
+                  'text-sm font-medium',
+                  isSelected
+                    ? 'text-accent-hover dark:text-accent'
+                    : 'text-text-primary',
+                )}
               >
                 {visaTypeLabels[type]}
               </span>

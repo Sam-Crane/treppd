@@ -14,7 +14,7 @@ interface HistoryResponse {
   messages: Array<{ role: 'user' | 'assistant'; content: string }>;
 }
 
-export function ChatWindow() {
+export function ChatWindow({ embedded = false }: { embedded?: boolean } = {}) {
   const queryClient = useQueryClient();
   const [input, setInput] = useState('');
   const [streamingText, setStreamingText] = useState<string | null>(null);
@@ -116,36 +116,58 @@ export function ChatWindow() {
   const showEmpty = !historyQuery.isLoading && allMessages.length === 0;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
-      {/* Header */}
-      <div className="border-b bg-white px-4 sm:px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1a365d] to-[#4a73a9] text-white flex items-center justify-center">
-            <Sparkles className="w-4 h-4" />
+    <div
+      className={
+        embedded
+          ? 'flex h-full flex-col'
+          : 'flex h-[calc(100vh-4rem)] flex-col'
+      }
+    >
+      {/* Header — rendered only when NOT embedded (modal already has a header) */}
+      {!embedded && (
+        <div className="flex items-center justify-between border-b border-border-default bg-surface px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent-hover text-accent-foreground">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <div>
+              <h1 className="text-sm font-semibold text-text-primary">
+                AI Assistant
+              </h1>
+              <p className="text-xs text-text-muted">
+                Grounded in BAMF, Make-it-in-Germany, DAAD
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-semibold text-gray-900">
-              AI Assistant
-            </h1>
-            <p className="text-xs text-gray-500">
-              Grounded in BAMF, Make-it-in-Germany, DAAD
-            </p>
-          </div>
+          {allMessages.length > 0 && (
+            <button
+              onClick={() => clearMutation.mutate()}
+              disabled={clearMutation.isPending || isStreaming}
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs text-text-muted transition-colors hover:bg-subtle hover:text-error disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear
+            </button>
+          )}
         </div>
-        {allMessages.length > 0 && (
+      )}
+
+      {/* In-modal clear button */}
+      {embedded && allMessages.length > 0 && (
+        <div className="flex items-center justify-end border-b border-border-default bg-surface px-3 py-1.5">
           <button
             onClick={() => clearMutation.mutate()}
             disabled={clearMutation.isPending || isStreaming}
-            className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-600 disabled:opacity-50 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-text-muted transition-colors hover:bg-subtle hover:text-error disabled:opacity-50"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 className="h-3 w-3" />
             Clear
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="flex-1 overflow-y-auto bg-subtle dark:bg-base">
         {showEmpty ? (
           <EmptyState onSuggestionClick={(s) => handleSend(s)} />
         ) : (
@@ -158,21 +180,21 @@ export function ChatWindow() {
         )}
 
         {streamError && (
-          <div className="mx-4 sm:mx-6 mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          <div className="mx-4 mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-error dark:border-red-900 dark:bg-red-950/40 sm:mx-6">
             {streamError}
           </div>
         )}
       </div>
 
       {/* Composer */}
-      <div className="border-t bg-white px-4 sm:px-6 py-3">
+      <div className="border-t border-border-default bg-surface px-4 py-3 sm:px-6">
         <ChatInput
           value={input}
           onChange={setInput}
           onSubmit={() => handleSend()}
           isStreaming={isStreaming}
         />
-        <p className="mt-2 text-[10px] text-gray-400 text-center">
+        <p className="mt-2 text-center text-[10px] text-text-muted">
           Treppd is educational guidance, not legal advice. Always verify with
           your local Auslaenderbehoerde.
         </p>

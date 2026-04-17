@@ -2,54 +2,39 @@
 
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { FadeIn } from '@/components/motion/fade-in';
-import { HeroBlurBlob } from '@/components/motion/hero-blur-blob';
+
+import { Button } from '@/components/ui';
 
 export function FinalCTA() {
-  const prefersReducedMotion = useReducedMotion();
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#1a365d] via-[#2a4a75] to-[#4a73a9] px-4 sm:px-6 py-20 sm:py-24">
-      {/* Subtle animated blob overlays */}
-      <HeroBlurBlob
-        className="-top-32 -left-20 opacity-40"
-        color="#ffffff"
-        size={420}
-        duration={16}
-      />
-      <HeroBlurBlob
-        className="-bottom-32 -right-20 opacity-30"
-        color="#ffffff"
-        size={520}
-        duration={20}
-      />
+    <section className="relative overflow-hidden bg-base py-20 sm:py-28">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+      >
+        <div className="absolute left-1/2 top-1/2 h-[300px] w-[700px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,theme(colors.accent.DEFAULT/0.18),transparent)]" />
+      </div>
 
-      <FadeIn className="relative max-w-3xl mx-auto text-center">
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight">
-          Save your first 40 hours in Germany
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
+        <h2 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+          Stop losing weekends to paperwork.
         </h2>
-        <p className="mt-5 text-lg text-white/85 max-w-xl mx-auto leading-relaxed">
-          Join the beta. Free for early users. Your roadmap in minutes.
+        <p className="mt-3 text-text-secondary sm:text-lg">
+          Get your personalised roadmap in under a minute. Free to start, no
+          credit card required.
         </p>
-
-        <motion.div
-          className="mt-10 inline-block"
-          whileHover={
-            prefersReducedMotion ? undefined : { scale: 1.03, y: -2 }
-          }
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          <Link
-            href="/register"
-            className="group inline-flex items-center gap-2 bg-white text-[#1a365d] text-base font-semibold px-8 py-3.5 rounded-lg shadow-xl shadow-black/10 hover:shadow-2xl hover:shadow-black/20 transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a365d]"
-          >
-            Start your roadmap
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </motion.div>
-      </FadeIn>
+        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Button asChild size="lg">
+            <Link href="/register">
+              Create your free account
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" size="lg">
+            <Link href="/pricing">See pricing</Link>
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }

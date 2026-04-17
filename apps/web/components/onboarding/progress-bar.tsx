@@ -1,24 +1,33 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
+import { cn } from '@/lib/utils';
+
 interface ProgressBarProps {
   currentStep: number;
   totalSteps: number;
 }
 
 export function ProgressBar({ currentStep, totalSteps }: ProgressBarProps) {
+  const pct = Math.round(((currentStep + 1) / totalSteps) * 100);
+
   return (
     <div className="w-full space-y-2">
-      <div className="flex justify-between text-sm text-gray-500">
-        <span>Step {currentStep + 1} of {totalSteps}</span>
-        <span>{Math.round(((currentStep + 1) / totalSteps) * 100)}%</span>
+      <div className="flex justify-between text-xs text-text-secondary">
+        <span>
+          Step {currentStep + 1} of {totalSteps}
+        </span>
+        <span className="font-mono tabular-nums">{pct}%</span>
       </div>
       <div className="flex gap-1.5">
         {Array.from({ length: totalSteps }).map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className={`h-2 flex-1 rounded-full transition-colors duration-300 ${
-              i <= currentStep ? 'bg-[#1a365d]' : 'bg-gray-200'
-            }`}
+            initial={false}
+            animate={{ opacity: i <= currentStep ? 1 : 0.2 }}
+            transition={{ duration: 0.3 }}
+            className={cn('h-1.5 flex-1 rounded-full bg-accent')}
           />
         ))}
       </div>

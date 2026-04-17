@@ -2,7 +2,9 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
+
+import { Button } from '@/components/ui';
 
 export default function GlobalError({
   error,
@@ -12,41 +14,38 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // In production this would go to Sentry or similar
     console.error('[error-boundary]', error);
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-      <div className="max-w-md w-full bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
-        <div className="mx-auto w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mb-4">
-          <AlertTriangle className="w-7 h-7" />
+    <div className="flex min-h-screen items-center justify-center bg-base p-4">
+      <div className="w-full max-w-md rounded-2xl border border-border-default bg-surface p-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-error dark:bg-red-950/50">
+          <AlertTriangle className="h-7 w-7" />
         </div>
-        <h1 className="text-xl font-bold text-gray-900">Something went wrong</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="text-xl font-semibold text-text-primary">
+          Something went wrong
+        </h1>
+        <p className="mt-2 text-sm text-text-secondary">
           We hit an unexpected error. You can retry, or head back to the
           dashboard.
         </p>
         {error.digest && (
-          <p className="mt-3 text-xs text-gray-400 font-mono break-all">
+          <p className="mt-3 break-all font-mono text-xs text-text-muted">
             Reference: {error.digest}
           </p>
         )}
-        <div className="mt-6 flex flex-col sm:flex-row gap-2 justify-center">
-          <button
-            onClick={reset}
-            className="inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-[#2a4a75] transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
+        <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+          <Button onClick={reset}>
+            <RefreshCw className="h-4 w-4" />
             Try again
-          </button>
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center justify-center gap-2 bg-white text-gray-700 text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            Dashboard
-          </Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/dashboard">
+              <Home className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

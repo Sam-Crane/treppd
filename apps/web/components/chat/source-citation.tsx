@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, ExternalLink } from 'lucide-react';
+
 import type { RetrievedChunk } from '@/lib/sse';
+import { cn } from '@/lib/utils';
 
 interface SourceCitationProps {
   chunks: RetrievedChunk[];
@@ -13,8 +15,20 @@ const sourceTypeLabels: Record<string, string> = {
   bamf: 'BAMF',
   make_it_in_germany: 'Make it in Germany',
   daad: 'DAAD',
+  handbook_germany: 'HandbookGermany',
+  berlin_service: 'service.berlin.de',
   berlin_labo: 'Berlin LABO',
-  munich_kvr: 'Munich KVR',
+  muenchen_kvr: 'München KVR',
+  hamburg_ausl: 'Hamburg Ausländerbehörde',
+  frankfurt_amka: 'Frankfurt AmkA',
+  koeln_ausl: 'Köln Ausländeramt',
+  stuttgart_ausl: 'Stuttgart Ausländerbehörde',
+  duesseldorf_ausl: 'Düsseldorf Ausländeramt',
+  leipzig_ausl: 'Leipzig Ausländerbehörde',
+  dortmund_ausl: 'Dortmund Ausländerwesen',
+  bremen_service: 'service.bremen.de',
+  hannover_ausl: 'Hannover Ausländerbehörde',
+  nuernberg_ausl: 'Nürnberg Migration & Integration',
   rundfunkbeitrag: 'Rundfunkbeitrag',
   manual: 'Curated',
 };
@@ -33,15 +47,16 @@ export function SourceCitation({ chunks }: SourceCitationProps) {
   });
 
   return (
-    <div className="mt-3 border-t border-gray-200 pt-3">
+    <div className="mt-3 border-t border-border-default pt-3">
       <button
         onClick={() => setExpanded((e) => !e)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text-primary"
       >
         <ChevronDown
-          className={`w-3.5 h-3.5 transition-transform ${
-            expanded ? 'rotate-180' : ''
-          }`}
+          className={cn(
+            'h-3.5 w-3.5 transition-transform',
+            expanded && 'rotate-180',
+          )}
         />
         {unique.length} source{unique.length === 1 ? '' : 's'} consulted
       </button>
@@ -53,7 +68,7 @@ export function SourceCitation({ chunks }: SourceCitationProps) {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden mt-2 space-y-1"
+            className="mt-2 space-y-1 overflow-hidden"
           >
             {unique.map((c, idx) => (
               <li key={`${c.source}-${idx}`} className="text-xs">
@@ -61,9 +76,9 @@ export function SourceCitation({ chunks }: SourceCitationProps) {
                   href={c.source ?? '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-start gap-1 text-[#1a365d] hover:underline"
+                  className="inline-flex items-start gap-1 text-accent hover:underline"
                 >
-                  <ExternalLink className="w-3 h-3 mt-0.5 shrink-0" />
+                  <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
                   <span>
                     <span className="font-medium">
                       {c.source_type

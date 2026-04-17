@@ -81,3 +81,38 @@ export const profileSchema = z
   );
 
 export type ProfileFormData = z.infer<typeof profileSchema>;
+
+/**
+ * Per-step validation schemas for the onboarding wizard.
+ *
+ * Each schema validates only the fields relevant to one step, so the
+ * wizard can show a precise error message without waiting for the user
+ * to reach the final submission. The `profileSchema` above is still used
+ * on the final step for the complete-form check.
+ */
+export const stepSchemas = [
+  // Step 0 — Visa type
+  z.object({ visa_type: z.enum(visaTypes, { message: 'Please select a visa type' }) }),
+  // Step 1 — Nationality
+  z.object({
+    nationality: z
+      .string({ message: 'Please select your nationality' })
+      .min(2, 'Please select your nationality'),
+  }),
+  // Step 2 — Location (Bundesland required, city optional)
+  z.object({
+    bundesland: z
+      .string({ message: 'Please select your state (Bundesland)' })
+      .min(1, 'Please select your state (Bundesland)'),
+    city: z.string().optional(),
+  }),
+  // Step 3 — Goal
+  z.object({ goal: z.enum(goals, { message: 'Please select your goal' }) }),
+  // Step 4 — Dates (all optional; cross-field refinements are on the full schema)
+  z.object({
+    arrival_date: z.string().optional(),
+    visa_expiry_date: z.string().optional(),
+    university_name: z.string().optional(),
+    employer_name: z.string().optional(),
+  }),
+] as const;

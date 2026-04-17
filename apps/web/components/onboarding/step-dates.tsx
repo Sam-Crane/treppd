@@ -1,7 +1,9 @@
 'use client';
 
-import { Calendar, GraduationCap, Building2 } from 'lucide-react';
+import { Building2, Calendar, GraduationCap } from 'lucide-react';
+
 import { useOnboardingStore } from '@/stores/onboarding-store';
+import { FormField, Input } from '@/components/ui';
 
 export function StepDates() {
   const { formData, updateFormData } = useOnboardingStore();
@@ -9,68 +11,54 @@ export function StepDates() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-text-primary">
           Important dates
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-text-secondary">
           These help us calculate deadlines and remind you of upcoming tasks.
         </p>
       </div>
 
       <div className="space-y-4">
-        <div>
-          <label
-            htmlFor="arrival_date"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            Arrival date in Germany
-          </label>
+        <FormField
+          label="Arrival date in Germany"
+          htmlFor="arrival_date"
+        >
           <div className="relative">
-            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
+            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+            <Input
               id="arrival_date"
               type="date"
               value={formData.arrival_date || ''}
-              onChange={(e) =>
-                updateFormData({ arrival_date: e.target.value })
-              }
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d]"
+              onChange={(e) => updateFormData({ arrival_date: e.target.value })}
+              className="pl-10"
             />
           </div>
-        </div>
+        </FormField>
 
-        <div>
-          <label
-            htmlFor="visa_expiry_date"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
-          >
-            Visa / permit expiry date
-          </label>
+        <FormField
+          label="Visa / permit expiry date"
+          htmlFor="visa_expiry_date"
+        >
           <div className="relative">
-            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
+            <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+            <Input
               id="visa_expiry_date"
               type="date"
               value={formData.visa_expiry_date || ''}
               onChange={(e) =>
                 updateFormData({ visa_expiry_date: e.target.value })
               }
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d]"
+              className="pl-10"
             />
           </div>
-        </div>
+        </FormField>
 
         {formData.visa_type === 'student' && (
-          <div>
-            <label
-              htmlFor="university_name"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
-            >
-              University name
-            </label>
+          <FormField label="University name" htmlFor="university_name">
             <div className="relative">
-              <GraduationCap className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
+              <GraduationCap className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <Input
                 id="university_name"
                 type="text"
                 placeholder="e.g. TU Munich, Humboldt University"
@@ -78,23 +66,17 @@ export function StepDates() {
                 onChange={(e) =>
                   updateFormData({ university_name: e.target.value })
                 }
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d]"
+                className="pl-10"
               />
             </div>
-          </div>
+          </FormField>
         )}
 
         {formData.visa_type === 'work' && (
-          <div>
-            <label
-              htmlFor="employer_name"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
-            >
-              Employer name
-            </label>
+          <FormField label="Employer name" htmlFor="employer_name">
             <div className="relative">
-              <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
+              <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <Input
                 id="employer_name"
                 type="text"
                 placeholder="e.g. SAP, Siemens, BMW"
@@ -102,10 +84,10 @@ export function StepDates() {
                 onChange={(e) =>
                   updateFormData({ employer_name: e.target.value })
                 }
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d]"
+                className="pl-10"
               />
             </div>
-          </div>
+          </FormField>
         )}
       </div>
     </div>

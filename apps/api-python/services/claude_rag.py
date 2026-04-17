@@ -28,7 +28,11 @@ from services.embeddings import EmbeddingsService, EmbeddingsServiceUnavailable
 logger = logging.getLogger(__name__)
 
 CHAT_MODEL = "claude-sonnet-4-20250514"
-RETRIEVAL_THRESHOLD = 0.5  # cosine similarity floor
+# Cosine-similarity floor for retrieval. Voyage `voyage-3` query/document
+# pairs over a heterogeneous corpus typically score in the 0.25–0.60 range,
+# so we keep the floor permissive and let the prompt's safety rules decide
+# when retrieved context isn't actually relevant.
+RETRIEVAL_THRESHOLD = 0.3
 RETRIEVAL_K = 5
 HISTORY_KEEP = 8
 
@@ -84,7 +88,29 @@ class RAGPipeline:
             logger.exception("knowledge_chunks RPC failed")
             return []
 
-        return result.data or []
+        chunks = result.data or []
+        if chunks:
+            scores = [c.get("similarity", 0.0) for c in chunks]
+            logger.info(
+                "RAG retrieved %d chunks for query %r (visa=%s, bundesland=%s) "
+                "similarity range: %.3f–%.3f",
+                len(chunks),
+                query[:80],
+                visa_type,
+                bundesland,
+                min(scores),
+                max(scores),
+            )
+        else:
+            logger.warning(
+                "RAG retrieved 0 chunks for query %r (visa=%s, bundesland=%s, "
+                "threshold=%.2f)",
+                query[:80],
+                visa_type,
+                bundesland,
+                RETRIEVAL_THRESHOLD,
+            )
+        return chunks
 
     # --------------------------------------------------------------- generate
 

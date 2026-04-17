@@ -1,98 +1,140 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import {
-  Compass,
-  CheckCircle2,
-  FileText,
-  MessageCircle,
-  Calendar,
   Bell,
+  FileCheck2,
+  FileText,
+  Mail,
+  Map,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
-import { FadeIn } from '@/components/motion/fade-in';
-import { StaggerContainer } from '@/components/motion/stagger-container';
-import { StaggerItem } from '@/components/motion/stagger-item';
-import { GlassmorphicCard } from '@/components/landing/glassmorphic-card';
 
 interface Feature {
   icon: LucideIcon;
   title: string;
   description: string;
+  stat: string;
+  statLabel: string;
+  accent: string;
 }
 
-const features: Feature[] = [
+const FEATURES: Feature[] = [
   {
-    icon: Compass,
-    title: 'Situation Profiler',
+    icon: Map,
+    title: 'Personalised roadmap',
     description:
-      'Tell us your visa type, city, and goal. We build your roadmap in under 2 minutes.',
+      'A step-by-step immigration plan tailored to your visa type, Bundesland, and goal — built from verified official sources in under 10 seconds.',
+    stat: '12',
+    statLabel: 'cities covered',
+    accent: 'from-blue-500/20 to-blue-500/5',
   },
   {
-    icon: CheckCircle2,
-    title: 'Personalised Roadmap',
+    icon: Sparkles,
+    title: 'AI assistant',
     description:
-      'Every step in the right order, with realistic timelines and dependency tracking.',
+      'Ask any immigration question in plain English. Every answer cites the exact BAMF, DAAD, or city-service source it drew from.',
+    stat: '556',
+    statLabel: 'verified chunks',
+    accent: 'from-violet-500/20 to-violet-500/5',
   },
   {
-    icon: FileText,
-    title: 'Document Checklists',
+    icon: FileCheck2,
+    title: 'Form guides',
     description:
-      'Exact specifications — translations, apostilles, copies, costs. Never show up empty-handed.',
+      'Anmeldung, residence permit, health insurance — field-by-field with common mistakes, examples, and "Ask AI" per field.',
+    stat: '84',
+    statLabel: 'curated fields',
+    accent: 'from-emerald-500/20 to-emerald-500/5',
   },
   {
-    icon: MessageCircle,
-    title: 'AI Guidance Chat',
+    icon: Mail,
+    title: 'Appointment emails',
     description:
-      'Ask anything in plain English. Context-aware answers for your visa and Bundesland.',
-  },
-  {
-    icon: Calendar,
-    title: 'Form-Filling Guides',
-    description:
-      'Field-by-field explanations for every official form. No more guessing.',
+      'Generate formal German emails to request Ausländerbehörde appointments. Sie-form, personalised, copy-and-send.',
+    stat: '5',
+    statLabel: 'process types',
+    accent: 'from-amber-500/20 to-amber-500/5',
   },
   {
     icon: Bell,
-    title: 'Deadline Alerts',
+    title: 'Deadline alerts',
     description:
-      'Visa expiry 90/30/7 day reminders. Statutory deadlines tracked from day one.',
+      'Push notifications at 90, 30, and 7 days before visa expiry. Plus a 14-day Anmeldung nudge. Never miss a date.',
+    stat: '3',
+    statLabel: 'alert windows',
+    accent: 'from-rose-500/20 to-rose-500/5',
+  },
+  {
+    icon: FileText,
+    title: 'Document uploads',
+    description:
+      'Upload passport, Meldebescheinigung, transcripts directly to your secure vault. The checklist ticks itself off.',
+    stat: '10MB',
+    statLabel: 'per upload',
+    accent: 'from-cyan-500/20 to-cyan-500/5',
   },
 ];
 
 export function FeatureGrid() {
   return (
-    <section className="bg-gray-50 px-4 sm:px-6 py-20 sm:py-24">
-      <div className="max-w-6xl mx-auto">
-        <FadeIn className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-            Everything you need in one place
+    <section
+      id="features"
+      className="border-b border-border-default bg-subtle/30 py-20 sm:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-accent">
+            Features
+          </span>
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+            Six tools. Zero guesswork.
           </h2>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Six features that together replace dozens of forum searches.
+          <p className="mt-3 text-text-secondary">
+            Every answer is grounded in an official source. Every form field
+            is hand-curated. Every deadline is tracked.
           </p>
-        </FadeIn>
+        </div>
 
-        <StaggerContainer
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
-          staggerChildren={0.08}
-        >
-          {features.map((feature) => {
-            const Icon = feature.icon;
-            return (
-              <StaggerItem key={feature.title} className="h-full">
-                <GlassmorphicCard className="h-full">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a365d]/10 to-[#4a73a9]/10 text-[#1a365d] flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6" aria-hidden />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                    {feature.description}
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.35, delay: i * 0.06 }}
+              className="group relative overflow-hidden rounded-2xl border border-border-default bg-surface p-6 transition-all hover:-translate-y-1 hover:shadow-lg"
+            >
+              {/* Gradient accent stripe at top */}
+              <div
+                className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${feature.accent}`}
+              />
+
+              <div className="flex items-start justify-between">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition group-hover:scale-110">
+                  <feature.icon className="h-5 w-5" />
+                </div>
+                <div className="text-right">
+                  <p className="font-mono text-2xl font-bold text-text-primary">
+                    {feature.stat}
                   </p>
-                </GlassmorphicCard>
-              </StaggerItem>
-            );
-          })}
-        </StaggerContainer>
+                  <p className="text-[10px] uppercase tracking-wider text-text-muted">
+                    {feature.statLabel}
+                  </p>
+                </div>
+              </div>
+
+              <h3 className="mt-4 text-base font-semibold text-text-primary">
+                {feature.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

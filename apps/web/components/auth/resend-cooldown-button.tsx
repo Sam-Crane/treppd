@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, RotateCw } from 'lucide-react';
 
+import { cn } from '@/lib/utils';
+
 interface ResendCooldownButtonProps {
   onResend: () => Promise<void>;
   cooldownSeconds?: number;
@@ -50,23 +52,25 @@ export function ResendCooldownButton({
       whileTap={!disabled ? { scale: 0.98 } : undefined}
       onClick={handleClick}
       disabled={disabled}
-      className={`relative overflow-hidden inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-colors ${
+      className={cn(
+        'relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg border px-4 py-2 text-sm font-medium transition-colors',
         disabled
-          ? 'bg-gray-50 text-gray-500 border-gray-200 cursor-not-allowed'
-          : 'bg-white text-[#1a365d] border-[#1a365d]/20 hover:bg-blue-50'
-      } ${className}`}
+          ? 'cursor-not-allowed border-border-default bg-subtle text-text-muted'
+          : 'border-accent/30 bg-surface text-accent hover:bg-accent-subtle',
+        className,
+      )}
     >
       {cooldown > 0 && (
         <div
-          className="absolute left-0 top-0 bottom-0 bg-blue-100/60 transition-all"
+          className="absolute inset-y-0 left-0 bg-accent/10 transition-all"
           style={{ width: `${progressPercent}%` }}
         />
       )}
       <span className="relative flex items-center gap-2">
         {isSending ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <RotateCw className="w-4 h-4" />
+          <RotateCw className="h-4 w-4" />
         )}
         {cooldown > 0 ? labelDuringCooldown(cooldown) : label}
       </span>

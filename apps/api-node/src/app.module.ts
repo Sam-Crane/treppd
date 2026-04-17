@@ -13,6 +13,9 @@ import { ProfilesModule } from './profiles/profiles.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { DocumentsModule } from './documents/documents.module';
 import { ChatModule } from './chat/chat.module';
+import { FormsModule } from './forms/forms.module';
+import { AppointmentsModule } from './appointments/appointments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -73,6 +76,9 @@ import { ChatModule } from './chat/chat.module';
     RoadmapModule,
     DocumentsModule,
     ChatModule,
+    FormsModule,
+    AppointmentsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
 })

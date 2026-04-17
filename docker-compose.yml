@@ -10,12 +10,14 @@ services:
         NEXT_PUBLIC_API_URL: http://localhost:3001
         NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
     ports:
       - '3000:3000'
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:3001
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
     depends_on:
       api-node:
         condition: service_healthy
@@ -37,6 +39,9 @@ services:
       - INTERNAL_API_KEY=${INTERNAL_API_KEY}
       - REDIS_URL=redis://redis:6379
       - FRONTEND_URL=http://localhost:3000
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:hello@treppd.de}
     depends_on:
       api-python:
         condition: service_healthy

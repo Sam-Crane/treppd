@@ -11,7 +11,7 @@ export function StreamingIndicator() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="block w-2 h-2 rounded-full bg-[#1a365d]/60"
+          className="block h-2 w-2 rounded-full bg-accent/60"
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{
             duration: 1.2,

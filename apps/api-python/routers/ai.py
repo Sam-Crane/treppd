@@ -1,6 +1,7 @@
+import logging
 from datetime import datetime, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
 
 from models import (
@@ -11,7 +12,11 @@ from models import (
     FieldExplainRequest,
     FieldExplainResponse,
 )
+from services.claude_emails import get_email_pipeline
+from services.claude_fields import FieldNotFoundError, get_field_pipeline
 from services.claude_rag import get_pipeline, to_sse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -83,20 +88,62 @@ async def chat_stream(request: ChatRequest):
 
 @router.post("/explain-field", response_model=FieldExplainResponse)
 async def explain_field(request: FieldExplainRequest):
-    """Explain a specific form field in plain language."""
-    # TODO: Phase 3 follow-up (separate plan)
+    """Explain a specific form field in plain language.
+
+    Grounded strictly in the field's stored `instructions_en`,
+    `common_mistakes`, and `example_value`, personalised to the user's
+    profile (visa_type, bundesland, goal). Results are cached for 60 min
+    per (form, field, visa, bundesland) tuple.
+    """
+    pipeline = get_field_pipeline()
+    try:
+        parsed = pipeline.explain(
+            form_code=request.form_code,
+            field_id=request.field_id,
+            user_context=request.user_context,
+        )
+    except FieldNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception:
+        logger.exception("explain-field pipeline failed")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Field explanation is temporarily unavailable.",
+        )
+
     return FieldExplainResponse(
-        explanation="Field explanation not yet implemented",
-        tips=[],
-        example="",
+        explanation=parsed["explanation"],
+        tips=parsed["tips"],
+        example=parsed["example"],
     )
 
 
 @router.post("/appointment-email", response_model=AppointmentEmailResponse)
 async def appointment_email(request: AppointmentEmailRequest):
-    """Generate a correctly formatted German-language appointment request email."""
-    # TODO: Phase 3 follow-up (separate plan)
+    """Generate a correctly formatted German-language appointment request email.
+
+    Always returns a subject and body in German regardless of the user's UI
+    language. The body is formal Sie-form, 8-14 lines, ends with a proper
+    Mit freundlichen Grüßen sign-off. Audit row written to
+    ai_generation_logs with operation='appointment_email' (PII-stripped).
+    """
+    pipeline = get_email_pipeline()
+    try:
+        parsed = pipeline.generate(
+            process_type=request.process_type,
+            user_profile=request.user_profile or {},
+            office_details=request.office_details or {},
+        )
+    except Exception:
+        logger.exception("appointment-email pipeline failed")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Appointment email generation is temporarily unavailable.",
+        )
     return AppointmentEmailResponse(
-        subject="Terminanfrage",
-        body="Email generation not yet implemented",
+        subject=parsed["subject"],
+        body=parsed["body"],
     )

@@ -4,19 +4,28 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import {
+  AlertCircle,
   ArrowLeft,
   Building2,
   Clock,
-  AlertCircle,
-  Globe,
-  Sparkles,
-  ShieldCheck,
-  FileText,
-  Languages,
-  Stamp,
   Copy,
+  FileText,
+  Globe,
+  Languages,
+  ShieldCheck,
+  Sparkles,
+  Stamp,
 } from 'lucide-react';
+
 import { api } from '@/lib/api';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Skeleton,
+} from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { CompleteStepButton } from '@/components/roadmap/complete-step-button';
 
 interface DocumentRequirement {
@@ -53,7 +62,7 @@ interface RoadmapResponse {
 
 function getStepStatus(
   step: RoadmapStep,
-  completedSteps: string[]
+  completedSteps: string[],
 ): 'completed' | 'available' | 'blocked' {
   if (completedSteps.includes(step.slug)) return 'completed';
   if (
@@ -67,20 +76,19 @@ function getStepStatus(
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-32" />
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <div className="h-6 bg-gray-200 rounded w-3/4" />
-        <div className="flex gap-3">
-          <div className="h-8 bg-gray-100 rounded-lg w-32" />
-          <div className="h-8 bg-gray-100 rounded-lg w-24" />
+    <div className="space-y-6">
+      <Skeleton className="h-4 w-32" />
+      <Card padding="lg">
+        <Skeleton className="h-7 w-3/4" />
+        <div className="mt-3 flex gap-3">
+          <Skeleton className="h-8 w-32 rounded-lg" />
+          <Skeleton className="h-8 w-24 rounded-lg" />
         </div>
-        <div className="space-y-2">
-          <div className="h-4 bg-gray-100 rounded w-full" />
-          <div className="h-4 bg-gray-100 rounded w-5/6" />
-          <div className="h-4 bg-gray-100 rounded w-4/6" />
+        <div className="mt-4 space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -89,7 +97,7 @@ export default function StepDetailPage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const { data: roadmap, isLoading: roadmapLoading } = useQuery({
+  const { data: roadmap, isLoading } = useQuery({
     queryKey: ['roadmap'],
     queryFn: () => api.get<RoadmapResponse>('/roadmap'),
   });
@@ -102,33 +110,28 @@ export default function StepDetailPage() {
   const completedSteps = profile?.completed_steps ?? [];
   const step = roadmap?.steps.find((s) => s.slug === slug);
 
-  if (roadmapLoading) {
-    return (
-      <div className="space-y-6">
-        <LoadingSkeleton />
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingSkeleton />;
 
   if (!step) {
     return (
       <div className="space-y-6">
         <Link
           href="/roadmap"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+          className="inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-text-primary"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Back to Roadmap
         </Link>
-        <div className="bg-white rounded-xl border p-8 sm:p-12 text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Step Not Found
-          </h2>
-          <p className="text-gray-500">
-            This step could not be found in your roadmap. It may have been
-            removed or your roadmap needs to be regenerated.
-          </p>
-        </div>
+        <EmptyState
+          icon={FileText}
+          title="Step not found"
+          description="This step could not be found in your roadmap. It may have been removed or your roadmap needs to be regenerated."
+          action={
+            <Button asChild variant="secondary">
+              <Link href="/roadmap">Back to Roadmap</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -138,63 +141,63 @@ export default function StepDetailPage() {
   const daysUntilDeadline = step.deadline
     ? Math.ceil(
         (new Date(step.deadline).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       )
     : null;
-
-  const statusConfig = {
-    completed: {
-      label: 'Completed',
-      className: 'bg-green-100 text-green-700',
-    },
-    available: { label: 'Ready', className: 'bg-blue-100 text-blue-700' },
-    blocked: { label: 'Blocked', className: 'bg-gray-100 text-gray-500' },
-  };
 
   return (
     <div className="space-y-6 pb-8">
       <Link
         href="/roadmap"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft className="h-4 w-4" />
         Back to Roadmap
       </Link>
 
       {/* Header */}
-      <div className="bg-white rounded-xl border shadow-sm p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-4 mb-4">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              {step.title}
-            </h1>
-          </div>
-          <span
-            className={`text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap ${statusConfig[status].className}`}
+      <Card padding="lg">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <h1 className="text-xl font-semibold text-text-primary sm:text-2xl">
+            {step.title}
+          </h1>
+          <Badge
+            variant={
+              status === 'completed'
+                ? 'success'
+                : status === 'available'
+                  ? 'info'
+                  : 'neutral'
+            }
+            size="lg"
           >
-            {statusConfig[status].label}
-          </span>
+            {status === 'completed'
+              ? 'Completed'
+              : status === 'available'
+                ? 'Ready'
+                : 'Blocked'}
+          </Badge>
         </div>
 
-        <div className="flex items-center gap-4 flex-wrap text-sm">
-          <span className="inline-flex items-center gap-1.5 text-gray-600">
-            <Building2 className="w-4 h-4 text-gray-400" />
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <span className="inline-flex items-center gap-1.5 text-text-secondary">
+            <Building2 className="h-4 w-4 text-text-muted" />
             {step.office}
           </span>
           {step.can_do_online && (
-            <span className="inline-flex items-center gap-1.5 text-blue-600">
-              <Globe className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1.5 text-accent">
+              <Globe className="h-4 w-4" />
               Available Online
             </span>
           )}
-          <span className="inline-flex items-center gap-1.5 text-gray-600">
-            <Clock className="w-4 h-4 text-gray-400" />
+          <span className="inline-flex items-center gap-1.5 text-text-secondary">
+            <Clock className="h-4 w-4 text-text-muted" />
             Estimated {step.estimated_days}{' '}
             {step.estimated_days === 1 ? 'day' : 'days'}
           </span>
           {step.source_verified && (
-            <span className="inline-flex items-center gap-1.5 text-green-600">
-              <ShieldCheck className="w-4 h-4" />
+            <span className="inline-flex items-center gap-1.5 text-success">
+              <ShieldCheck className="h-4 w-4" />
               Verified
             </span>
           )}
@@ -202,15 +205,16 @@ export default function StepDetailPage() {
 
         {step.deadline && daysUntilDeadline !== null && (
           <div
-            className={`mt-4 flex items-center gap-2 p-3 rounded-lg text-sm ${
+            className={cn(
+              'mt-4 flex items-center gap-2 rounded-lg border p-3 text-sm',
               daysUntilDeadline <= 7
-                ? 'bg-red-50 text-red-700 border border-red-200'
+                ? 'border-red-200 bg-red-50 text-error dark:border-red-800 dark:bg-red-950/40'
                 : daysUntilDeadline <= 30
-                  ? 'bg-orange-50 text-orange-700 border border-orange-200'
-                  : 'bg-blue-50 text-blue-700 border border-blue-200'
-            }`}
+                  ? 'border-amber-200 bg-amber-50 text-warning dark:border-amber-800 dark:bg-amber-950/40'
+                  : 'border-blue-200 bg-blue-50 text-accent dark:border-blue-800 dark:bg-blue-950/40',
+            )}
           >
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
             <span>
               <span className="font-medium">Deadline:</span>{' '}
               {new Date(step.deadline).toLocaleDateString('en-DE', {
@@ -224,84 +228,86 @@ export default function StepDetailPage() {
             </span>
           </div>
         )}
-      </div>
+      </Card>
 
       {/* Explanation */}
-      <div className="bg-white rounded-xl border shadow-sm p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+      <Card padding="lg">
+        <h2 className="mb-3 text-lg font-semibold text-text-primary">
           What You Need to Do
         </h2>
-        <p className="text-gray-700 leading-relaxed">{step.explanation}</p>
-      </div>
+        <p className="leading-relaxed text-text-secondary">
+          {step.explanation}
+        </p>
+      </Card>
 
       {/* Tips */}
       {step.tips.length > 0 && (
-        <div className="bg-white rounded-xl border shadow-sm p-5 sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <Card padding="lg">
+          <h2 className="mb-3 text-lg font-semibold text-text-primary">
             Helpful Tips
           </h2>
           <ol className="space-y-3">
             {step.tips.map((tip, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-50 text-[#1a365d] text-xs font-semibold flex items-center justify-center mt-0.5">
+                <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-accent-subtle text-xs font-semibold text-accent-hover dark:text-accent">
                   {i + 1}
                 </span>
-                <span className="text-gray-700 text-sm leading-relaxed">
+                <span className="text-sm leading-relaxed text-text-secondary">
                   {tip}
                 </span>
               </li>
             ))}
           </ol>
-        </div>
+        </Card>
       )}
 
       {/* Documents */}
       {step.documents_needed.length > 0 && (
-        <div className="bg-white rounded-xl border shadow-sm p-5 sm:p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <Card padding="lg">
+          <h2 className="mb-4 text-lg font-semibold text-text-primary">
             Required Documents ({step.documents_needed.length})
           </h2>
           <div className="space-y-4">
             {step.documents_needed.map((doc, i) => (
               <div
                 key={i}
-                className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-border-default p-4 transition-colors hover:bg-subtle"
               >
                 <div className="flex items-start gap-3">
-                  <FileText className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900">
+                  <FileText className="mt-0.5 h-5 w-5 flex-shrink-0 text-text-muted" />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-medium text-text-primary">
                       {doc.document_name_en}
                     </h3>
-                    <p className="text-sm text-gray-400 mt-0.5">
+                    <p className="mt-0.5 text-sm text-text-muted">
                       {doc.document_name_de}
                     </p>
 
-                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
                       {doc.needs_certified_copy && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
-                          <Copy className="w-3 h-3" />
+                        <Badge variant="warning">
+                          <Copy className="h-3 w-3" />
                           Certified Copy
-                        </span>
+                        </Badge>
                       )}
                       {doc.needs_translation && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-                          <Languages className="w-3 h-3" />
-                          Translation Required
-                        </span>
+                        <Badge variant="info">
+                          <Languages className="h-3 w-3" />
+                          Translation
+                        </Badge>
                       )}
                       {doc.needs_apostille && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                          <Stamp className="w-3 h-3" />
-                          Apostille Required
-                        </span>
+                        <Badge variant="error">
+                          <Stamp className="h-3 w-3" />
+                          Apostille
+                        </Badge>
                       )}
                     </div>
 
-                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                    <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-text-secondary">
                       {doc.where_to_get && (
                         <span>
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-text-primary">
                             Where:
                           </span>{' '}
                           {doc.where_to_get}
@@ -309,73 +315,72 @@ export default function StepDetailPage() {
                       )}
                       {doc.estimated_cost_eur !== null && (
                         <span>
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-text-primary">
                             Cost:
                           </span>{' '}
-                          ~EUR {doc.estimated_cost_eur}
+                          ~€{doc.estimated_cost_eur}
                         </span>
                       )}
                     </div>
 
-                    {Object.keys(doc.specifications).length > 0 && (
-                      <details className="mt-3">
-                        <summary className="text-xs font-medium text-gray-500 cursor-pointer hover:text-gray-700">
-                          Specifications
-                        </summary>
-                        <div className="mt-2 bg-gray-50 rounded p-3 text-xs text-gray-600 space-y-1">
-                          {Object.entries(doc.specifications).map(
-                            ([key, value]) => (
-                              <div key={key}>
-                                <span className="font-medium">
-                                  {key.replace(/_/g, ' ')}:
-                                </span>{' '}
-                                {String(value)}
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </details>
-                    )}
+                    {doc.specifications &&
+                      Object.keys(doc.specifications).length > 0 && (
+                        <details className="mt-3">
+                          <summary className="cursor-pointer text-xs font-medium text-text-muted hover:text-text-secondary">
+                            Specifications
+                          </summary>
+                          <div className="mt-2 space-y-1 rounded bg-subtle p-3 text-xs text-text-secondary">
+                            {Object.entries(doc.specifications).map(
+                              ([key, value]) => (
+                                <div key={key}>
+                                  <span className="font-medium">
+                                    {key.replace(/_/g, ' ')}:
+                                  </span>{' '}
+                                  {String(value)}
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        </details>
+                      )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* AI Notice */}
       {step.ai_suggested && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-yellow-600" />
-            <h3 className="font-semibold text-yellow-800">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-950/40">
+          <div className="mb-2 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <h3 className="font-semibold text-amber-800 dark:text-amber-300">
               AI-Suggested Step
             </h3>
           </div>
-          <p className="text-sm text-yellow-700">
+          <p className="text-sm text-amber-700 dark:text-amber-400">
             This step was generated by AI based on your profile. Requirements
-            may vary by location and individual circumstances. Please verify all
-            details with your local Auslaenderbehoerde (foreigners office)
-            before proceeding.
+            may vary by location. Please verify all details with your local
+            Ausländerbehörde before proceeding.
           </p>
         </div>
       )}
 
-      {/* Action buttons */}
-      <div className="bg-white rounded-xl border shadow-sm p-5 sm:p-6 flex items-center justify-between">
-        <CompleteStepButton
-          slug={step.slug}
-          isCompleted={isCompleted}
-          disabled={status === 'blocked'}
-        />
-        <Link
-          href="/roadmap"
-          className="text-sm text-gray-500 hover:text-gray-700 font-medium"
-        >
-          Back to Roadmap
-        </Link>
-      </div>
+      {/* Actions */}
+      <Card
+        padding="md"
+        className="flex items-center justify-between"
+      >
+        <CompleteStepButton slug={step.slug} isCompleted={isCompleted} />
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/roadmap">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Roadmap
+          </Link>
+        </Button>
+      </Card>
     </div>
   );
 }
