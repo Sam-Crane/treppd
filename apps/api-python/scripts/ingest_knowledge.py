@@ -26,6 +26,7 @@ import time
 from pathlib import Path
 
 import httpx
+import trafilatura
 from bs4 import BeautifulSoup
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from supabase import create_client
@@ -50,7 +51,15 @@ USER_AGENT = (
 
 
 def fetch_url(url: str) -> str | None:
-    """Fetch a URL and return the rendered text content (HTML stripped)."""
+    """Fetch a URL and return the main article text.
+
+    Uses trafilatura's purpose-built extractor first (handles 90%+ of
+    news/government CMS layouts including the legacy ones — service.berlin.de,
+    BAMF templated pages — that don't use semantic <main>/<article> tags).
+    Falls back to a hand-rolled BeautifulSoup pass when trafilatura's
+    main-content detection comes up empty so we don't regress on the
+    standards-compliant pages that were working before.
+    """
     try:
         with httpx.Client(
             headers={"User-Agent": USER_AGENT},
@@ -63,19 +72,31 @@ def fetch_url(url: str) -> str | None:
         logger.error("Failed to fetch %s: %s", url, e)
         return None
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    html = response.text
 
-    # Drop noisy elements before extracting text
+    # Primary: trafilatura — robust against weird CMS layouts.
+    extracted = trafilatura.extract(
+        html,
+        include_comments=False,
+        include_tables=True,
+        favor_recall=True,  # gov sites have unusual structures, prefer recall
+        no_fallback=False,
+    )
+    if extracted and len(extracted.strip()) > 200:
+        # Collapse runs of blank lines for cleaner chunking
+        lines = [line.strip() for line in extracted.splitlines() if line.strip()]
+        return "\n".join(lines)
+
+    # Fallback: original BeautifulSoup approach. Kept because trafilatura
+    # occasionally returns empty for very small or single-paragraph pages.
+    logger.info("  trafilatura returned <200 chars; falling back to BeautifulSoup")
+    soup = BeautifulSoup(html, "html.parser")
     for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
         tag.decompose()
-
-    # Prefer <main> or <article> if present, otherwise fall back to <body>
     main = soup.find("main") or soup.find("article") or soup.body
     if main is None:
         return None
-
     text = main.get_text(separator="\n", strip=True)
-    # Collapse runs of blank lines
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     return "\n".join(lines)
 
@@ -148,7 +169,11 @@ def main() -> int:
     )
     parser.add_argument(
         "--only",
-        help="Substring filter — only ingest URLs containing this string",
+        help=(
+            "Substring filter — only ingest URLs containing this string. "
+            "Accepts a comma-separated list to match multiple substrings, "
+            "e.g. --only 'bank-account,registration,sperrkonto'."
+        ),
     )
     parser.add_argument(
         "--dry-run",
@@ -170,8 +195,14 @@ def main() -> int:
 
     sources = catalog.get("sources", [])
     if args.only:
-        sources = [s for s in sources if args.only in s["url"]]
-        logger.info("Filtered to %d sources matching %r", len(sources), args.only)
+        needles = [n.strip() for n in args.only.split(",") if n.strip()]
+        sources = [s for s in sources if any(n in s["url"] for n in needles)]
+        logger.info(
+            "Filtered to %d sources matching %d substring(s): %s",
+            len(sources),
+            len(needles),
+            needles,
+        )
 
     if not sources:
         logger.error("No sources to ingest")

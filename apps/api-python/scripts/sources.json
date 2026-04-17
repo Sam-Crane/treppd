@@ -230,6 +230,105 @@
         "bundeslaender": [],
         "section": "Rundfunkbeitrag (radio/TV tax)"
       }
+    },
+    {
+      "url": "https://handbookgermany.de/en/bank-account",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Bank account (incl. Sperrkonto)"
+      }
+    },
+    {
+      "url": "https://handbookgermany.de/en/registration",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Anmeldung (address registration)"
+      }
+    },
+    {
+      "url": "https://handbookgermany.de/en/permanent-eu-residence-permit",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Permanent EU residence permit"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/service/glossary/glossar/do/show/sperrkonto",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["student", "job_seeker"],
+        "bundeslaender": [],
+        "section": "Sperrkonto (blocked account) glossary"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/money-insurance/bank-account",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Bank account in Germany"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/procedure/entry-process",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Entry & visa process (Anmeldung, Aufenthaltstitel)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany/housing-mobility/housing-registration",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Housing & registration (Anmeldung practical guide)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/procedure/do-i-need-visa",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Do I need a visa? (entry rules)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/studying",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Visa for studying (renewal terms incl.)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types/work-qualified-professionals",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Work visa for qualified professionals (renewal terms)"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/living-permanently/settlement-permit",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Settlement permit (Niederlassungserlaubnis)"
+      }
     }
   ]
 }

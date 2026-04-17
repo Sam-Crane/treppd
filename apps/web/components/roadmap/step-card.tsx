@@ -3,17 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import {
-  Building2,
-  Clock,
   AlertCircle,
+  Building2,
   CheckCircle2,
-  Lock,
-  Sparkles,
   ChevronDown,
   ChevronUp,
-  Globe,
+  Clock,
   FileText,
+  Globe,
+  Lock,
+  Sparkles,
 } from 'lucide-react';
+
+import { Badge, Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
 import { CompleteStepButton } from './complete-step-button';
 
 interface DocumentRequirement {
@@ -50,127 +53,145 @@ interface StepCardProps {
   isCompleted: boolean;
 }
 
+const STATUS_STYLES: Record<StepStatus, string> = {
+  completed:
+    'border-success/30 bg-success/5 dark:bg-success/10',
+  available:
+    'border-accent/30 bg-surface',
+  blocked:
+    'border-border-default bg-subtle opacity-60',
+};
+
+const STATUS_ICONS: Record<StepStatus, React.ReactNode> = {
+  completed: <CheckCircle2 className="h-5 w-5 text-success" />,
+  available: (
+    <div className="h-5 w-5 rounded-full border-2 border-accent" />
+  ),
+  blocked: <Lock className="h-5 w-5 text-text-muted" />,
+};
+
 export function StepCard({ step, status, isCompleted }: StepCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const statusStyles: Record<StepStatus, string> = {
-    completed: 'border-green-300 bg-green-50',
-    available: 'border-blue-300 bg-white',
-    blocked: 'border-gray-200 bg-gray-50 opacity-75',
-  };
-
-  const statusIcons: Record<StepStatus, React.ReactNode> = {
-    completed: <CheckCircle2 className="w-5 h-5 text-green-600" />,
-    available: <div className="w-5 h-5 rounded-full border-2 border-blue-400" />,
-    blocked: <Lock className="w-5 h-5 text-gray-400" />,
-  };
-
-  const statusLabels: Record<StepStatus, string> = {
-    completed: 'Completed',
-    available: 'Ready',
-    blocked: 'Blocked',
-  };
-
   const daysUntilDeadline = step.deadline
-    ? Math.ceil((new Date(step.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil(
+        (new Date(step.deadline).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24),
+      )
     : null;
 
   return (
     <div
-      className={`rounded-xl border-2 transition-all ${statusStyles[status]}`}
+      className={cn(
+        'rounded-xl border transition-all',
+        STATUS_STYLES[status],
+      )}
     >
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full text-left p-4 sm:p-5"
+        className="w-full p-4 text-left sm:p-5"
         disabled={status === 'blocked'}
       >
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex-shrink-0">{statusIcons[status]}</div>
+          <div className="mt-0.5 flex-shrink-0">{STATUS_ICONS[status]}</div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-gray-900 text-base">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-base font-semibold text-text-primary">
                 {step.title}
               </h3>
               {step.ai_suggested && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-                  <Sparkles className="w-3 h-3" />
+                <Badge variant="warning">
+                  <Sparkles className="h-3 w-3" />
                   AI Suggested
-                </span>
+                </Badge>
               )}
             </div>
 
-            <div className="flex items-center gap-3 mt-2 flex-wrap text-sm text-gray-500">
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-text-secondary">
               <span className="inline-flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5" />
+                <Building2 className="h-3.5 w-3.5" />
                 {step.office}
               </span>
               <span className="inline-flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                {step.estimated_days} {step.estimated_days === 1 ? 'day' : 'days'}
+                <Clock className="h-3.5 w-3.5" />
+                {step.estimated_days}{' '}
+                {step.estimated_days === 1 ? 'day' : 'days'}
               </span>
               {step.can_do_online && (
-                <span className="inline-flex items-center gap-1 text-blue-600">
-                  <Globe className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1 text-accent">
+                  <Globe className="h-3.5 w-3.5" />
                   Online
                 </span>
               )}
               {step.deadline && daysUntilDeadline !== null && (
                 <span
-                  className={`inline-flex items-center gap-1 ${
+                  className={cn(
+                    'inline-flex items-center gap-1',
                     daysUntilDeadline <= 7
-                      ? 'text-red-600 font-medium'
-                      : 'text-orange-600'
-                  }`}
+                      ? 'font-medium text-error'
+                      : 'text-warning',
+                  )}
                 >
-                  <AlertCircle className="w-3.5 h-3.5" />
+                  <AlertCircle className="h-3.5 w-3.5" />
                   {daysUntilDeadline > 0
                     ? `${daysUntilDeadline}d left`
                     : 'Overdue'}
                 </span>
               )}
-              <span
-                className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              <Badge
+                variant={
                   status === 'completed'
-                    ? 'bg-green-100 text-green-700'
+                    ? 'success'
                     : status === 'available'
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'bg-gray-100 text-gray-500'
-                }`}
+                      ? 'info'
+                      : 'neutral'
+                }
               >
-                {statusLabels[status]}
-              </span>
+                {status === 'completed'
+                  ? 'Completed'
+                  : status === 'available'
+                    ? 'Ready'
+                    : 'Blocked'}
+              </Badge>
             </div>
           </div>
 
-          <div className="flex-shrink-0 mt-1">
+          <div className="mt-1 flex-shrink-0">
             {status !== 'blocked' ? (
               expanded ? (
-                <ChevronUp className="w-5 h-5 text-gray-400" />
+                <ChevronUp className="h-5 w-5 text-text-muted" />
               ) : (
-                <ChevronDown className="w-5 h-5 text-gray-400" />
+                <ChevronDown className="h-5 w-5 text-text-muted" />
               )
             ) : (
-              <Lock className="w-5 h-5 text-gray-300" />
+              <Lock className="h-5 w-5 text-text-muted/50" />
             )}
           </div>
         </div>
       </button>
 
       {expanded && status !== 'blocked' && (
-        <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 border-t border-gray-100">
-          <div className="pt-4 space-y-4">
-            <p className="text-gray-700 text-sm leading-relaxed">
+        <div className="border-t border-border-default px-4 pb-4 pt-0 sm:px-5 sm:pb-5">
+          <div className="space-y-4 pt-4">
+            <p className="text-sm leading-relaxed text-text-secondary">
               {step.explanation}
             </p>
 
             {step.tips.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Tips</h4>
+                <h4 className="mb-2 text-sm font-semibold text-text-primary">
+                  Tips
+                </h4>
                 <ul className="space-y-1.5">
                   {step.tips.map((tip, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                      <span className="text-blue-500 font-medium mt-px">{i + 1}.</span>
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-text-secondary"
+                    >
+                      <span className="mt-px font-medium text-accent">
+                        {i + 1}.
+                      </span>
                       {tip}
                     </li>
                   ))}
@@ -180,24 +201,29 @@ export function StepCard({ step, status, isCompleted }: StepCardProps) {
 
             {step.documents_needed.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                <h4 className="mb-2 text-sm font-semibold text-text-primary">
                   Documents Required ({step.documents_needed.length})
                 </h4>
                 <ul className="space-y-1.5">
                   {step.documents_needed.map((doc, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                      <FileText className="w-3.5 h-3.5 mt-0.5 text-gray-400 flex-shrink-0" />
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 text-sm text-text-secondary"
+                    >
+                      <FileText className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-text-muted" />
                       <span>
                         {doc.document_name_en}
-                        {(doc.needs_translation || doc.needs_apostille || doc.needs_certified_copy) && (
-                          <span className="ml-1.5 text-xs text-gray-400">
+                        {(doc.needs_translation ||
+                          doc.needs_apostille ||
+                          doc.needs_certified_copy) && (
+                          <span className="ml-1.5 text-xs text-text-muted">
                             {[
                               doc.needs_certified_copy && 'Certified',
                               doc.needs_translation && 'Translation',
                               doc.needs_apostille && 'Apostille',
                             ]
                               .filter(Boolean)
-                              .join(' | ')}
+                              .join(' · ')}
                           </span>
                         )}
                       </span>
@@ -208,13 +234,14 @@ export function StepCard({ step, status, isCompleted }: StepCardProps) {
             )}
 
             {step.ai_suggested && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 flex-shrink-0" />
+              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300">
+                  <Sparkles className="h-4 w-4 flex-shrink-0" />
                   <span className="font-medium">AI Suggested</span>
                 </div>
-                <p className="mt-1 text-yellow-700">
-                  This step was suggested by AI. Please verify requirements with your local Auslaenderbehoerde.
+                <p className="mt-1 text-amber-700 dark:text-amber-400">
+                  This step was suggested by AI. Please verify requirements
+                  with your local Ausländerbehörde.
                 </p>
               </div>
             )}
@@ -223,14 +250,10 @@ export function StepCard({ step, status, isCompleted }: StepCardProps) {
               <CompleteStepButton
                 slug={step.slug}
                 isCompleted={isCompleted}
-                disabled={(['blocked'] as StepStatus[]).includes(status)}
               />
-              <Link
-                href={`/roadmap/${step.slug}`}
-                className="text-sm text-blue-700 hover:text-blue-800 font-medium"
-              >
-                View Details
-              </Link>
+              <Button asChild variant="link" size="sm">
+                <Link href={`/roadmap/${step.slug}`}>View Details</Link>
+              </Button>
             </div>
           </div>
         </div>

@@ -4,13 +4,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Loader2,
   Mail,
 } from 'lucide-react';
 
@@ -21,6 +20,7 @@ import {
 } from '@/lib/schemas/auth';
 import { AuthSplitPanel } from '@/components/auth/auth-split-panel';
 import { ResendCooldownButton } from '@/components/auth/resend-cooldown-button';
+import { Button, FormField, Input } from '@/components/ui';
 
 export default function ForgotPasswordPage() {
   const [authError, setAuthError] = useState<string | null>(null);
@@ -75,10 +75,10 @@ export default function ForgotPasswordPage() {
             className="space-y-6"
           >
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-semibold tracking-tight text-text-primary">
                 Reset your password
               </h1>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-text-secondary">
                 Enter the email you registered with. We&apos;ll send you a
                 link to set a new password.
               </p>
@@ -91,68 +91,59 @@ export default function ForgotPasswordPage() {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   role="alert"
-                  className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+                  className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-error dark:border-red-900 dark:bg-red-950/40"
                 >
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{authError}</span>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
-                >
-                  Email
-                </label>
+              <FormField
+                label="Email"
+                htmlFor="email"
+                error={errors.email?.message}
+                required
+              >
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                  <Input
                     id="email"
                     type="email"
                     autoComplete="email"
                     autoFocus
                     disabled={isSubmitting}
-                    {...register('email')}
-                    className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent disabled:bg-gray-50"
+                    invalid={Boolean(errors.email)}
                     placeholder="you@example.com"
+                    className="pl-10"
+                    {...register('email')}
                   />
                 </div>
-                {errors.email && (
-                  <p className="mt-1.5 text-xs text-red-600">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+              </FormField>
 
-              <motion.button
+              <Button
                 type="submit"
-                disabled={isSubmitting}
-                whileHover={!isSubmitting ? { scale: 1.01 } : undefined}
-                whileTap={!isSubmitting ? { scale: 0.99 } : undefined}
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#2a4a75] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                size="lg"
+                className="w-full"
+                loading={isSubmitting}
               >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Sending link...
-                  </>
+                  'Sending link…'
                 ) : (
                   <>
                     Send reset link
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="h-4 w-4" />
                   </>
                 )}
-              </motion.button>
+              </Button>
             </form>
 
             <Link
               href="/login"
-              className="inline-flex items-center justify-center gap-1.5 w-full text-sm text-gray-600 hover:text-gray-900 py-2"
+              className="inline-flex w-full items-center justify-center gap-1.5 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Back to sign in
             </Link>
           </motion.div>
@@ -165,27 +156,27 @@ export default function ForgotPasswordPage() {
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            <div className="flex flex-col items-center text-center space-y-4">
+            <div className="flex flex-col items-center space-y-4 text-center">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                className="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center"
+                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-success dark:bg-emerald-950/50"
               >
-                <CheckCircle2 className="w-8 h-8" />
+                <CheckCircle2 className="h-8 w-8" />
               </motion.div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
                   Check your inbox
                 </h1>
-                <p className="mt-2 text-sm text-gray-500 max-w-sm">
+                <p className="mt-2 max-w-sm text-sm text-text-secondary">
                   We&apos;ve sent a password reset link to
                 </p>
-                <p className="mt-1 text-sm font-semibold text-gray-900 break-all">
+                <p className="mt-1 break-all text-sm font-semibold text-text-primary">
                   {submittedEmail}
                 </p>
               </div>
-              <p className="text-xs text-gray-400 max-w-sm">
+              <p className="max-w-sm text-xs text-text-muted">
                 Click the link in that email to set a new password. The link
                 expires in 1 hour.
               </p>
@@ -196,7 +187,7 @@ export default function ForgotPasswordPage() {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 role="alert"
-                className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+                className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-error dark:border-red-900 dark:bg-red-950/40"
               >
                 {authError}
               </motion.div>
@@ -209,17 +200,21 @@ export default function ForgotPasswordPage() {
               />
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 py-2"
+                className="inline-flex items-center justify-center gap-1.5 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Back to sign in
               </Link>
             </div>
 
-            <div className="pt-4 border-t">
-              <p className="text-xs text-gray-400 text-center">
+            <div className="border-t border-border-default pt-4">
+              <p className="text-center text-xs text-text-muted">
                 Didn&apos;t see the email? Check your spam folder, or make
-                sure <span className="font-medium text-gray-600">{submittedEmail}</span> is the email on your account.
+                sure{' '}
+                <span className="font-medium text-text-secondary">
+                  {submittedEmail}
+                </span>{' '}
+                is the email on your account.
               </p>
             </div>
           </motion.div>

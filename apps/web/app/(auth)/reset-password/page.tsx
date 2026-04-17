@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowRight,
-  Lock,
   Loader2,
+  Lock,
   Shield,
 } from 'lucide-react';
 
@@ -21,6 +21,7 @@ import {
 } from '@/lib/schemas/auth';
 import { AuthSplitPanel } from '@/components/auth/auth-split-panel';
 import { PasswordStrength } from '@/components/auth/password-strength';
+import { Button, FormField, Input } from '@/components/ui';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -38,8 +39,6 @@ export default function ResetPasswordPage() {
 
   const password = watch('password') || '';
 
-  // Verify the recovery session Supabase set when the user clicked the email
-  // link. If no session, the link was invalid or expired.
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -67,7 +66,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthSplitPanel>
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+          <Loader2 className="h-6 w-6 animate-spin text-text-muted" />
         </div>
       </AuthSplitPanel>
     );
@@ -77,25 +76,24 @@ export default function ResetPasswordPage() {
     return (
       <AuthSplitPanel>
         <div className="space-y-6 text-center">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
-            <AlertCircle className="w-8 h-8" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-warning dark:bg-amber-950/50">
+            <AlertCircle className="h-8 w-8" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
               Reset link invalid or expired
             </h1>
-            <p className="mt-2 text-sm text-gray-500 max-w-sm mx-auto">
+            <p className="mx-auto mt-2 max-w-sm text-sm text-text-secondary">
               Password reset links expire after 1 hour and can only be used
               once. Please request a new one.
             </p>
           </div>
-          <Link
-            href="/forgot-password"
-            className="inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#2a4a75] transition-colors"
-          >
-            Request a new link
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <Button asChild size="lg">
+            <Link href="/forgot-password">
+              Request a new link
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
       </AuthSplitPanel>
     );
@@ -105,14 +103,14 @@ export default function ResetPasswordPage() {
     <AuthSplitPanel>
       <div className="space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-[#1a365d]/10 text-[#1a365d] flex items-center justify-center">
-            <Shield className="w-5 h-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-subtle text-accent-hover dark:text-accent">
+            <Shield className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-text-primary">
               Set a new password
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-text-secondary">
               Choose a strong one you&apos;ll remember.
             </p>
           </div>
@@ -125,88 +123,74 @@ export default function ResetPasswordPage() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               role="alert"
-              className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+              className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-error dark:border-red-900 dark:bg-red-950/40"
             >
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{authError}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1.5"
-            >
-              New password
-            </label>
+          <FormField
+            label="New password"
+            htmlFor="password"
+            error={errors.password?.message}
+            required
+          >
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <Input
                 id="password"
                 type="password"
                 autoComplete="new-password"
                 autoFocus
                 disabled={isSubmitting}
-                {...register('password')}
-                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent disabled:bg-gray-50"
+                invalid={Boolean(errors.password)}
                 placeholder="Create a new password"
+                className="pl-10"
+                {...register('password')}
               />
             </div>
-            {errors.password && (
-              <p className="mt-1.5 text-xs text-red-600">
-                {errors.password.message}
-              </p>
-            )}
             <PasswordStrength password={password} />
-          </div>
+          </FormField>
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-1.5"
-            >
-              Confirm new password
-            </label>
+          <FormField
+            label="Confirm new password"
+            htmlFor="confirmPassword"
+            error={errors.confirmPassword?.message}
+            required
+          >
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
+              <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              <Input
                 id="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 disabled={isSubmitting}
-                {...register('confirmPassword')}
-                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent disabled:bg-gray-50"
+                invalid={Boolean(errors.confirmPassword)}
                 placeholder="Re-enter your new password"
+                className="pl-10"
+                {...register('confirmPassword')}
               />
             </div>
-            {errors.confirmPassword && (
-              <p className="mt-1.5 text-xs text-red-600">
-                {errors.confirmPassword.message}
-              </p>
-            )}
-          </div>
+          </FormField>
 
-          <motion.button
+          <Button
             type="submit"
-            disabled={isSubmitting}
-            whileHover={!isSubmitting ? { scale: 1.01 } : undefined}
-            whileTap={!isSubmitting ? { scale: 0.99 } : undefined}
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#2a4a75] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            size="lg"
+            className="w-full"
+            loading={isSubmitting}
           >
             {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Updating password...
-              </>
+              'Updating password…'
             ) : (
               <>
                 Update password
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="h-4 w-4" />
               </>
             )}
-          </motion.button>
+          </Button>
         </form>
       </div>
     </AuthSplitPanel>

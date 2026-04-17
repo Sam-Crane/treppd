@@ -1,16 +1,17 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import {
-  Compass,
-  CheckCircle2,
-  FileText,
-  MessageCircle,
-  Calendar,
   Bell,
+  FileCheck2,
+  FileText,
+  Mail,
+  Map,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
-import { FadeIn } from '@/components/motion/fade-in';
-import { StaggerContainer } from '@/components/motion/stagger-container';
-import { StaggerItem } from '@/components/motion/stagger-item';
-import { GlassmorphicCard } from '@/components/landing/glassmorphic-card';
+
+import { Card } from '@/components/ui';
 
 interface Feature {
   icon: LucideIcon;
@@ -18,81 +19,85 @@ interface Feature {
   description: string;
 }
 
-const features: Feature[] = [
+const FEATURES: Feature[] = [
   {
-    icon: Compass,
-    title: 'Situation Profiler',
+    icon: Map,
+    title: 'Personalised roadmap',
     description:
-      'Tell us your visa type, city, and goal. We build your roadmap in under 2 minutes.',
+      'A step-by-step immigration plan tailored to your visa type, Bundesland, and goal — built from verified official sources, never invented.',
   },
   {
-    icon: CheckCircle2,
-    title: 'Personalised Roadmap',
+    icon: Sparkles,
+    title: 'AI assistant',
     description:
-      'Every step in the right order, with realistic timelines and dependency tracking.',
+      'Ask any immigration question in plain English. Answers cite the exact BAMF, DAAD, or city-service sources they drew from.',
   },
   {
-    icon: FileText,
-    title: 'Document Checklists',
+    icon: FileCheck2,
+    title: 'Form guides',
     description:
-      'Exact specifications — translations, apostilles, copies, costs. Never show up empty-handed.',
+      'Anmeldung, residence permit, student health insurance — field-by-field with common mistakes, examples, and per-field "Ask AI" explanations.',
   },
   {
-    icon: MessageCircle,
-    title: 'AI Guidance Chat',
+    icon: Mail,
+    title: 'Appointment emails',
     description:
-      'Ask anything in plain English. Context-aware answers for your visa and Bundesland.',
-  },
-  {
-    icon: Calendar,
-    title: 'Form-Filling Guides',
-    description:
-      'Field-by-field explanations for every official form. No more guessing.',
+      'Generate formal German emails to request an Ausländerbehörde appointment, tailored to your profile and preferred dates.',
   },
   {
     icon: Bell,
-    title: 'Deadline Alerts',
+    title: 'Deadline alerts',
     description:
-      'Visa expiry 90/30/7 day reminders. Statutory deadlines tracked from day one.',
+      'Push notifications at 90, 30, 7 days before visa expiry, plus the 14-day Anmeldung deadline. Never miss a date again.',
+  },
+  {
+    icon: FileText,
+    title: 'Document checklist',
+    description:
+      'Upload scans of your passport, Meldebescheinigung, transcripts. The checklist ticks itself off as you go.',
   },
 ];
 
 export function FeatureGrid() {
   return (
-    <section className="bg-gray-50 px-4 sm:px-6 py-20 sm:py-24">
-      <div className="max-w-6xl mx-auto">
-        <FadeIn className="text-center mb-12 sm:mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-            Everything you need in one place
+    <section
+      id="features"
+      className="border-b border-border-default bg-subtle/40 py-20 sm:py-28"
+    >
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
+            Everything you need, nothing you don&apos;t
           </h2>
-          <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-            Six features that together replace dozens of forum searches.
+          <p className="mt-3 text-text-secondary">
+            Six focused tools. No bloat, no gamified distractions, no email
+            spam — just the bureaucratic muscle you need to settle in Germany.
           </p>
-        </FadeIn>
+        </div>
 
-        <StaggerContainer
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
-          staggerChildren={0.08}
-        >
-          {features.map((feature) => {
-            const Icon = feature.icon;
-            return (
-              <StaggerItem key={feature.title} className="h-full">
-                <GlassmorphicCard className="h-full">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1a365d]/10 to-[#4a73a9]/10 text-[#1a365d] flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6" aria-hidden />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {feature.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </GlassmorphicCard>
-              </StaggerItem>
-            );
-          })}
-        </StaggerContainer>
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.25, delay: i * 0.04 }}
+            >
+              <Card variant="bordered" padding="lg" className="h-full">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-subtle text-accent-hover dark:text-accent">
+                  <feature.icon className="h-4 w-4" />
+                </div>
+                <h3 className="mt-4 text-base font-semibold text-text-primary">
+                  {feature.title}
+                </h3>
+                <p className="mt-1 text-sm text-text-secondary">
+                  {feature.description}
+                </p>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );

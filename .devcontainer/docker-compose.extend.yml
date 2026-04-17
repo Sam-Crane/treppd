@@ -1,5 +1,8 @@
-# Devcontainer-only additions: workspace service for Codespaces
-# The app services are defined in the root docker-compose.yml
+# Devcontainer workspace — runs independently of the app services.
+#
+# App services (web, api-node, api-python, redis) are NOT started
+# automatically. Run `docker compose up` manually when needed.
+# This keeps Codespace startup fast (<60s vs 5-10 min).
 services:
   workspace:
     image: mcr.microsoft.com/devcontainers/base:ubuntu-22.04
@@ -7,4 +10,3 @@ services:
       - ..:/workspace:cached
       - /var/run/docker.sock:/var/run/docker-host.sock
     command: sleep infinity
-    network_mode: service:api-node

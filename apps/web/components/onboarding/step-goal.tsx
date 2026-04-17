@@ -1,15 +1,17 @@
 'use client';
 
 import {
-  Rocket,
-  RefreshCw,
   ArrowRightLeft,
-  Users,
   Building2,
+  RefreshCw,
+  Rocket,
+  Users,
+  type LucideIcon,
 } from 'lucide-react';
+
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { goals, goalLabels } from '@/lib/schemas/onboarding';
-import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const goalIcons: Record<string, LucideIcon> = {
   initial_setup: Rocket,
@@ -25,11 +27,11 @@ export function StepGoal() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-text-primary">
           What do you need help with?
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          We will tailor your roadmap based on your primary goal.
+        <p className="mt-1 text-sm text-text-secondary">
+          We&apos;ll tailor your roadmap based on your primary goal.
         </p>
       </div>
 
@@ -43,25 +45,32 @@ export function StepGoal() {
               key={goal}
               type="button"
               onClick={() => updateFormData({ goal })}
-              className={`flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all ${
+              aria-pressed={isSelected}
+              className={cn(
+                'flex w-full items-center gap-4 rounded-xl border p-4 text-left transition-all',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                 isSelected
-                  ? 'border-[#1a365d] bg-blue-50 shadow-sm'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-              }`}
+                  ? 'border-accent bg-accent-subtle shadow-xs'
+                  : 'border-border-default bg-surface hover:border-border-strong hover:shadow-xs',
+              )}
             >
               <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                className={cn(
+                  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors',
                   isSelected
-                    ? 'bg-[#1a365d] text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
+                    ? 'bg-accent text-accent-foreground'
+                    : 'bg-subtle text-text-secondary',
+                )}
               >
                 <Icon className="h-5 w-5" />
               </div>
               <span
-                className={`text-sm font-medium ${
-                  isSelected ? 'text-[#1a365d]' : 'text-gray-700'
-                }`}
+                className={cn(
+                  'text-sm font-medium',
+                  isSelected
+                    ? 'text-accent-hover dark:text-accent'
+                    : 'text-text-primary',
+                )}
               >
                 {goalLabels[goal]}
               </span>

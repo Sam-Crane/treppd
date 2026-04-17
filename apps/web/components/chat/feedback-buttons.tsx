@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ThumbsUp, ThumbsDown, Check } from 'lucide-react';
+import { Check, ThumbsDown, ThumbsUp } from 'lucide-react';
+
 import { api } from '@/lib/api';
 
 interface FeedbackButtonsProps {
@@ -18,7 +19,6 @@ export function FeedbackButtons({ logId }: FeedbackButtonsProps) {
     try {
       await api.post('/chat/feedback', { log_id: logId, rating });
     } catch {
-      // Best-effort; revert UI on failure
       setSubmitted(null);
     }
   }
@@ -28,9 +28,9 @@ export function FeedbackButtons({ logId }: FeedbackButtonsProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="inline-flex items-center gap-1 text-xs text-gray-500"
+        className="inline-flex items-center gap-1 text-xs text-text-muted"
       >
-        <Check className="w-3.5 h-3.5 text-green-600" />
+        <Check className="h-3.5 w-3.5 text-success" />
         Thanks for the feedback
       </motion.div>
     );
@@ -41,16 +41,16 @@ export function FeedbackButtons({ logId }: FeedbackButtonsProps) {
       <button
         onClick={() => send(1)}
         aria-label="This was helpful"
-        className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-green-600 transition-colors"
+        className="rounded p-1 text-text-muted transition-colors hover:bg-subtle hover:text-success"
       >
-        <ThumbsUp className="w-3.5 h-3.5" />
+        <ThumbsUp className="h-3.5 w-3.5" />
       </button>
       <button
         onClick={() => send(-1)}
         aria-label="This was not helpful"
-        className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600 transition-colors"
+        className="rounded p-1 text-text-muted transition-colors hover:bg-subtle hover:text-error"
       >
-        <ThumbsDown className="w-3.5 h-3.5" />
+        <ThumbsDown className="h-3.5 w-3.5" />
       </button>
     </div>
   );

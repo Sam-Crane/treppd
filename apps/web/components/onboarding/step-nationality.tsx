@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
+
 import { useOnboardingStore } from '@/stores/onboarding-store';
+import { Input } from '@/components/ui';
+import { cn } from '@/lib/utils';
 
 const countries = [
   { code: 'AF', name: 'Afghanistan' },
@@ -42,6 +45,16 @@ const countries = [
   { code: 'VN', name: 'Vietnam' },
 ];
 
+function countryFlag(code: string): string {
+  const offset = 127397;
+  return String.fromCodePoint(
+    ...code
+      .toUpperCase()
+      .split('')
+      .map((c) => c.charCodeAt(0) + offset),
+  );
+}
+
 export function StepNationality() {
   const { formData, updateFormData } = useOnboardingStore();
   const [search, setSearch] = useState('');
@@ -59,28 +72,28 @@ export function StepNationality() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-text-primary">
           What is your nationality?
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-text-secondary">
           This helps us determine which visa requirements apply to you.
         </p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <input
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+        <Input
           type="text"
-          placeholder="Search for your country..."
+          placeholder="Search for your country…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#1a365d] focus:outline-none focus:ring-1 focus:ring-[#1a365d]"
+          className="pl-10"
         />
       </div>
 
-      <div className="max-h-64 space-y-1.5 overflow-y-auto rounded-lg border border-gray-200 p-2">
+      <div className="max-h-64 space-y-1 overflow-y-auto rounded-lg border border-border-default bg-surface p-1.5">
         {filtered.length === 0 ? (
-          <p className="py-4 text-center text-sm text-gray-400">
+          <p className="py-6 text-center text-sm text-text-muted">
             No countries found
           </p>
         ) : (
@@ -91,18 +104,24 @@ export function StepNationality() {
                 key={country.code}
                 type="button"
                 onClick={() => updateFormData({ nationality: country.code })}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                aria-pressed={isSelected}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                   isSelected
-                    ? 'bg-[#1a365d] font-medium text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                    ? 'bg-accent font-medium text-accent-foreground'
+                    : 'text-text-primary hover:bg-subtle',
+                )}
               >
                 <span className="text-base">{countryFlag(country.code)}</span>
                 <span>{country.name}</span>
                 <span
-                  className={`ml-auto text-xs ${
-                    isSelected ? 'text-blue-200' : 'text-gray-400'
-                  }`}
+                  className={cn(
+                    'ml-auto text-[10px] font-mono',
+                    isSelected
+                      ? 'text-accent-foreground/70'
+                      : 'text-text-muted',
+                  )}
                 >
                   {country.code}
                 </span>
@@ -112,15 +131,5 @@ export function StepNationality() {
         )}
       </div>
     </div>
-  );
-}
-
-function countryFlag(code: string): string {
-  const offset = 127397;
-  return String.fromCodePoint(
-    ...code
-      .toUpperCase()
-      .split('')
-      .map((c) => c.charCodeAt(0) + offset),
   );
 }

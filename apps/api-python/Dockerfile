@@ -30,7 +30,7 @@ ENV PYTHONUNBUFFERED=1
 
 USER fastapi
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
-    CMD curl --fail http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s \
+    CMD curl --fail http://127.0.0.1:8000/health || exit 1
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

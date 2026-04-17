@@ -129,6 +129,12 @@ export class PythonService {
     return this.fetchWithRetry('/ai/explain-field', payload);
   }
 
+  async appointmentEmail(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/ai/appointment-email', payload);
+  }
+
   /**
    * Open a streaming connection to the FastAPI /ai/chat/stream endpoint
    * and return the raw SSE body as a ReadableStream. The caller is

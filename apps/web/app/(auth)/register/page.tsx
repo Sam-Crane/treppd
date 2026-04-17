@@ -5,21 +5,22 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertCircle,
-  Loader2,
-  Mail,
-  Lock,
   ArrowRight,
   Compass,
+  Lock,
+  Mail,
   Sparkles,
+  User,
 } from 'lucide-react';
 
 import { createClient } from '@/lib/supabase/client';
 import { registerSchema, type RegisterFormData } from '@/lib/schemas/auth';
 import { AuthSplitPanel } from '@/components/auth/auth-split-panel';
 import { PasswordStrength } from '@/components/auth/password-strength';
+import { Button, FormField, Input } from '@/components/ui';
 
 type FlowStep = 'welcome' | 'credentials';
 
@@ -34,6 +35,53 @@ const slideVariants = {
     opacity: 0,
   }),
 };
+
+function FlowProgress({ step }: { step: FlowStep }) {
+  const currentStep = step === 'welcome' ? 0 : 1;
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-1">
+        {Array.from({ length: 8 }).map((_, i) => {
+          const filled = i <= currentStep;
+          return (
+            <motion.div
+              key={i}
+              initial={false}
+              animate={{ opacity: filled ? 1 : 0.25 }}
+              transition={{ duration: 0.3 }}
+              className="h-1 flex-1 rounded-full bg-accent"
+            />
+          );
+        })}
+      </div>
+      <p className="mt-2 text-xs text-text-muted">
+        Step {currentStep + 1} of 8
+      </p>
+    </div>
+  );
+}
+
+function ValueProp({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof Compass;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg bg-subtle/50 p-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-subtle text-accent-hover dark:text-accent">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-text-primary">{title}</p>
+        <p className="text-xs text-text-muted">{description}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -61,11 +109,17 @@ export default function RegisterPage() {
     setAuthError(null);
     const supabase = createClient();
 
+    const fullName = `${data.first_name.trim()} ${data.last_name.trim()}`;
     const { error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        data: {
+          full_name: fullName,
+          first_name: data.first_name.trim(),
+          last_name: data.last_name.trim(),
+        },
       },
     });
 
@@ -74,38 +128,12 @@ export default function RegisterPage() {
       return;
     }
 
-    // Email verification is enabled — direct user to the "check your inbox"
-    // screen instead of immediately refreshing the session.
-    router.push(
-      `/verify-email?email=${encodeURIComponent(data.email)}`,
-    );
+    router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
   }
 
   return (
     <AuthSplitPanel>
-      {/* Flow progress: step 1 of 8 (register welcome) or step 2 of 8 (credentials) */}
-      <div className="mb-6">
-        <div className="flex items-center gap-1">
-          {Array.from({ length: 8 }).map((_, i) => {
-            const currentStep = flowStep === 'welcome' ? 0 : 1;
-            const filled = i <= currentStep;
-            return (
-              <motion.div
-                key={i}
-                initial={false}
-                animate={{
-                  backgroundColor: filled ? '#1a365d' : '#e5e7eb',
-                }}
-                transition={{ duration: 0.3 }}
-                className="h-1 flex-1 rounded-full"
-              />
-            );
-          })}
-        </div>
-        <p className="mt-2 text-xs text-gray-500">
-          Step {flowStep === 'welcome' ? 1 : 2} of 8
-        </p>
-      </div>
+      <FlowProgress step={flowStep} />
 
       <AnimatePresence mode="wait" custom={direction}>
         {flowStep === 'welcome' && (
@@ -120,63 +148,46 @@ export default function RegisterPage() {
             className="space-y-6"
           >
             <div>
-              <div className="inline-flex items-center gap-2 bg-blue-50 text-[#1a365d] text-xs font-medium px-3 py-1 rounded-full mb-4">
-                <Sparkles className="w-3.5 h-3.5" />
+              <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-accent-subtle px-3 py-1 text-xs font-medium text-accent-hover dark:text-accent">
+                <Sparkles className="h-3.5 w-3.5" />
                 Free to start
-              </div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              </span>
+              <h1 className="text-3xl font-semibold tracking-tight text-text-primary">
                 Let&apos;s set up your account
               </h1>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-text-secondary">
                 We&apos;ll build your personalised immigration roadmap in 8
                 quick steps. Under 3 minutes, start to finish.
               </p>
             </div>
 
             <div className="space-y-3 py-2">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-[#1a365d]/10 text-[#1a365d] flex items-center justify-center">
-                  <Compass className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    Tailored to your situation
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Visa type, Bundesland, arrival date, goal.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                <div className="shrink-0 w-8 h-8 rounded-lg bg-[#1a365d]/10 text-[#1a365d] flex items-center justify-center">
-                  <Mail className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    Email verification
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    One-click confirmation keeps your account secure.
-                  </p>
-                </div>
-              </div>
+              <ValueProp
+                icon={Compass}
+                title="Tailored to your situation"
+                description="Visa type, Bundesland, arrival date, goal."
+              />
+              <ValueProp
+                icon={Mail}
+                title="Email verification"
+                description="One-click confirmation keeps your account secure."
+              />
             </div>
 
-            <motion.button
+            <Button
               onClick={goToCredentials}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              className="w-full inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#2a4a75] transition-colors"
+              size="lg"
+              className="w-full"
             >
               Continue with email
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-text-secondary">
               Already have an account?{' '}
               <Link
                 href="/login"
-                className="font-medium text-[#1a365d] hover:underline"
+                className="font-medium text-accent hover:underline"
               >
                 Sign in
               </Link>
@@ -196,10 +207,10 @@ export default function RegisterPage() {
             className="space-y-6"
           >
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-semibold tracking-tight text-text-primary">
                 Create your account
               </h1>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-text-secondary">
                 Step 2 of 8 — pick an email and strong password.
               </p>
             </div>
@@ -211,104 +222,128 @@ export default function RegisterPage() {
                   animate={{ opacity: 1, y: 0, height: 'auto' }}
                   exit={{ opacity: 0, y: -4, height: 0 }}
                   role="alert"
-                  className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+                  className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-error dark:border-red-900 dark:bg-red-950/40"
                 >
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   <span>{authError}</span>
                 </motion.div>
               )}
             </AnimatePresence>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  label="First name"
+                  htmlFor="first_name"
+                  error={errors.first_name?.message}
+                  required
                 >
-                  Email
-                </label>
+                  <div className="relative">
+                    <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                    <Input
+                      id="first_name"
+                      type="text"
+                      autoComplete="given-name"
+                      autoFocus
+                      disabled={isSubmitting}
+                      invalid={Boolean(errors.first_name)}
+                      placeholder="Anna"
+                      className="pl-10"
+                      {...register('first_name')}
+                    />
+                  </div>
+                </FormField>
+                <FormField
+                  label="Last name"
+                  htmlFor="last_name"
+                  error={errors.last_name?.message}
+                  required
+                >
+                  <Input
+                    id="last_name"
+                    type="text"
+                    autoComplete="family-name"
+                    disabled={isSubmitting}
+                    invalid={Boolean(errors.last_name)}
+                    placeholder="Müller"
+                    {...register('last_name')}
+                  />
+                </FormField>
+              </div>
+
+              <FormField
+                label="Email"
+                htmlFor="email"
+                error={errors.email?.message}
+                required
+              >
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                  <Input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    autoFocus
                     disabled={isSubmitting}
-                    {...register('email')}
-                    className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    invalid={Boolean(errors.email)}
                     placeholder="you@example.com"
+                    className="pl-10"
+                    {...register('email')}
                   />
                 </div>
-                {errors.email && (
-                  <p className="mt-1.5 text-xs text-red-600">
-                    {errors.email.message}
-                  </p>
-                )}
-              </div>
+              </FormField>
 
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
-                >
-                  Password
-                </label>
+              <FormField
+                label="Password"
+                htmlFor="password"
+                error={errors.password?.message}
+                required
+              >
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                  <Input
                     id="password"
                     type="password"
                     autoComplete="new-password"
                     disabled={isSubmitting}
-                    {...register('password')}
-                    className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a365d] focus:border-transparent disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    invalid={Boolean(errors.password)}
                     placeholder="Create a password"
+                    className="pl-10"
+                    {...register('password')}
                   />
                 </div>
-                {errors.password && (
-                  <p className="mt-1.5 text-xs text-red-600">
-                    {errors.password.message}
-                  </p>
-                )}
                 <PasswordStrength password={password} />
-              </div>
+              </FormField>
 
               <div className="flex gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => {
                     setDirection('back');
                     setFlowStep('welcome');
                   }}
                   disabled={isSubmitting}
-                  className="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
                 >
                   Back
-                </button>
-                <motion.button
+                </Button>
+                <Button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={!isSubmitting ? { scale: 1.01 } : undefined}
-                  whileTap={!isSubmitting ? { scale: 0.99 } : undefined}
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-[#1a365d] text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-[#2a4a75] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1"
+                  loading={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Creating account...
-                    </>
+                    'Creating account…'
                   ) : (
                     <>
                       Continue
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="h-4 w-4" />
                     </>
                   )}
-                </motion.button>
+                </Button>
               </div>
             </form>
 
-            <p className="text-center text-xs text-gray-400">
+            <p className="text-center text-xs text-text-muted">
               By creating an account you agree to our educational-use terms.
               Treppd is not legal advice. Data stored in the EU (GDPR).
             </p>

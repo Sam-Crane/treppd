@@ -5,11 +5,11 @@ set -e
 echo "==> Installing Node.js dependencies across all workspaces"
 npm install
 
-echo "==> Installing Python dependencies for FastAPI service"
-pip install --user -r apps/api-python/requirements.txt
+echo "==> Installing Python dev tools (linting, testing — NOT runtime deps)"
+pip install --user -r apps/api-python/requirements-dev.txt
 
 echo "==> Installing global tools"
-npm install -g turbo supabase
+npm install -g turbo
 
 echo "==> Seeding .env from .env.example (if .env does not exist)"
 if [ ! -f .env ]; then
@@ -18,10 +18,14 @@ if [ ! -f .env ]; then
 fi
 
 echo ""
-echo "==> Setup complete. Useful commands:"
-echo "    turbo dev           # Start all services in dev mode"
-echo "    turbo build         # Build all workspaces"
-echo "    turbo test          # Run all tests"
-echo "    turbo lint          # Run linters"
-echo "    docker-compose up   # Start containerized stack"
+echo "==> Setup complete! Useful commands:"
+echo ""
+echo "    # Docker mode (fully containerized):"
+echo "    docker compose up -d    # Build + start all 4 containers"
+echo "    docker compose ps       # Check container health"
+echo "    docker compose logs -f  # Tail all logs"
+echo ""
+echo "    # Testing + linting:"
+echo "    turbo test              # Run all tests"
+echo "    turbo lint              # Run ESLint + Ruff"
 echo ""

@@ -33,6 +33,13 @@ export const envSchema = z.object({
   // Optional (not yet used but declared for future wiring)
   FCM_SERVER_KEY: z.string().optional(),
   JWT_SECRET: z.string().optional(),
+
+  // Web Push / VAPID (Phase 3e). Both required when push is enabled; if
+  // missing, the NotificationsModule refuses subscriptions with a clear
+  // error rather than crashing at boot.
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().default('mailto:hello@treppd.de'),
 });
 
 export type Env = z.infer<typeof envSchema>;

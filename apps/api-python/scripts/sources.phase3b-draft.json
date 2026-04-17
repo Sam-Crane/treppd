@@ -1,0 +1,346 @@
+{
+  "_comment": "Phase 3b DRAFT — city-specific Ausländerbehörde sources, ALL-GERMAN. Voyage voyage-3 is multilingual and Claude reads German natively, so we ingest the authoritative German pages and let Claude translate in the answer. NOT yet merged into sources.json. Review, then copy the `sources` entries into sources.json and re-run ingestion.",
+  "_policy": {
+    "language": "100% German official pages. The German pages are the authoritative version of every German bureaucratic process — English translations on city sites are typically partial summaries. Voyage voyage-3 embeds German + English queries into the same vector space, so an English user query still retrieves the right German chunk; Claude then translates the answer.",
+    "rejected_sources": "Third-party aggregators like integreat.app, expats.de, auslaenderaemter.com, and auslaenderbehoerde.org are NOT included — only official city/Bundesland domains.",
+    "scope_rationale": "Top 12 cities by non-EU immigrant population. Berlin already covered by service.berlin.de entries in the main sources.json, so it's omitted here.",
+    "verified_at": "2026-04-16 — all URLs returned HTTP 200 via curl with Mozilla UA.",
+    "cost_estimate": "35 URLs × avg ~5 chunks/URL ≈ ~175 chunks. On Voyage free tier (22s/chunk): ~64 min. On paid tier: ~45s.",
+    "ingestion_command": "docker compose exec api-python python scripts/ingest_knowledge.py --only \"stadt.muenchen.de,hamburg.de/auslaenderbehoerde,hamburg.de/politik-und-verwaltung,hamburg.de/service/info/111207615,hamburg.de/service/suche/aufenthaltstitel,amka.de,stadt-koeln.de,stuttgart.de/buergerinnen-und-buerger/migranten,duesseldorf.de/auslaenderamt,duesseldorf.de/amt-fuer-migration,leipzig.de/jugend-familie-und-soziales,dortmund.de/themen/aufenthalt,service.bremen.de/dienstleistungen/aufenthaltserlaubnis-beantragen-nach,service.bremen.de/dienstleistungen/aufenthaltserlaubnis-fuer-eine-erwerb,service.bremen.de/dienstleistungen/elektronischer-aufenthaltstitel,service.niedersachsen.de/detail,nuernberg.de/internet/auslaenderbehoerde\""
+  },
+  "sources": [
+    {
+      "url": "https://stadt.muenchen.de/buergerservice/ausland-migration.html",
+      "source_type": "muenchen_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "München KVR — Aufenthalt & Migration (hub)"
+      }
+    },
+    {
+      "url": "https://stadt.muenchen.de/service/suche/aufenthaltstitel/",
+      "source_type": "muenchen_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "München KVR — Aufenthaltstitel-Übersicht"
+      }
+    },
+    {
+      "url": "https://stadt.muenchen.de/infos/faq-auslaenderbehoerde.html",
+      "source_type": "muenchen_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "München KVR — FAQ Ausländerbehörde"
+      }
+    },
+    {
+      "url": "https://stadt.muenchen.de/infos/sze-online.html",
+      "source_type": "muenchen_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "München KVR — Online-Services SZE"
+      }
+    },
+    {
+      "url": "https://stadt.muenchen.de/service/info/auslanderbehorde/10339026/",
+      "source_type": "muenchen_kvr",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "München KVR — Notfall-Hilfe Aufenthaltstitel"
+      }
+    },
+    {
+      "url": "https://www.hamburg.de/auslaenderbehoerde/",
+      "source_type": "hamburg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HH"],
+        "section": "Hamburg — Zentrale Ausländerbehörde (hub)"
+      }
+    },
+    {
+      "url": "https://www.hamburg.de/politik-und-verwaltung/behoerden/behoerde-fuer-inneres-und-sport/aemter/amt-fuer-migration/zentrale-auslaenderangelegenheiten",
+      "source_type": "hamburg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HH"],
+        "section": "Hamburg — Zentrale Ausländerangelegenheiten (Amt für Migration)"
+      }
+    },
+    {
+      "url": "https://www.hamburg.de/service/info/111207615/n0/",
+      "source_type": "hamburg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HH"],
+        "section": "Hamburg — Elektronischen Aufenthaltstitel beantragen"
+      }
+    },
+    {
+      "url": "https://www.hamburg.de/service/suche/aufenthaltstitel/",
+      "source_type": "hamburg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HH"],
+        "section": "Hamburg — 17 Dienstleistungen für Aufenthaltstitel"
+      }
+    },
+    {
+      "url": "https://amka.de/",
+      "source_type": "frankfurt_amka",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HE"],
+        "section": "Frankfurt AmkA — Amt für multikulturelle Angelegenheiten (hub)"
+      }
+    },
+    {
+      "url": "https://amka.de/node/689",
+      "source_type": "frankfurt_amka",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HE"],
+        "section": "Frankfurt AmkA — Anmeldung & Aufenthalt"
+      }
+    },
+    {
+      "url": "https://amka.de/node/690",
+      "source_type": "frankfurt_amka",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HE"],
+        "section": "Frankfurt AmkA — Beratung & Hilfe"
+      }
+    },
+    {
+      "url": "https://amka.de/node/691",
+      "source_type": "frankfurt_amka",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HE"],
+        "section": "Frankfurt AmkA — weitere Themen"
+      }
+    },
+    {
+      "url": "https://www.stadt-koeln.de/leben-in-koeln/soziales/auslaenderamt/index.html",
+      "source_type": "koeln_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Köln — Ausländeramt (hub)"
+      }
+    },
+    {
+      "url": "https://www.stadt-koeln.de/service/adressen/00761/index.html",
+      "source_type": "koeln_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Köln — Ausländerangelegenheiten Adressen & Sprechzeiten"
+      }
+    },
+    {
+      "url": "https://www.stadt-koeln.de/service/onlinedienste/kontakt-auslaenderamt/index.html",
+      "source_type": "koeln_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Köln — Online-Kontakt zum Ausländeramt"
+      }
+    },
+    {
+      "url": "https://www.stuttgart.de/buergerinnen-und-buerger/migranten/informationen-der-auslaenderbehoerde/",
+      "source_type": "stuttgart_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BW"],
+        "section": "Stuttgart — Informationen der Ausländerbehörde (hub)"
+      }
+    },
+    {
+      "url": "https://www.stuttgart.de/buergerinnen-und-buerger/migranten/informationen-der-auslaenderbehoerde/haeufig-gestellte-fragen-aufenthaltstitel",
+      "source_type": "stuttgart_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BW"],
+        "section": "Stuttgart — FAQ Aufenthaltstitel"
+      }
+    },
+    {
+      "url": "https://www.stuttgart.de/buergerinnen-und-buerger/migranten/informationen-der-auslaenderbehoerde/auslaenderbehoerde-terminvereinbarung",
+      "source_type": "stuttgart_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BW"],
+        "section": "Stuttgart — Terminvereinbarung Ausländerbehörde"
+      }
+    },
+    {
+      "url": "https://www.stuttgart.de/buergerinnen-und-buerger/migranten/informationen-der-auslaenderbehoerde/kontakt-und-antrag/",
+      "source_type": "stuttgart_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BW"],
+        "section": "Stuttgart — Kontakt und Antrag"
+      }
+    },
+    {
+      "url": "https://www.duesseldorf.de/auslaenderamt",
+      "source_type": "duesseldorf_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Düsseldorf — Ausländeramt (hub)"
+      }
+    },
+    {
+      "url": "https://www.duesseldorf.de/amt-fuer-migration-und-integration/",
+      "source_type": "duesseldorf_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Düsseldorf — Amt für Migration und Integration"
+      }
+    },
+    {
+      "url": "https://www.leipzig.de/jugend-familie-und-soziales/auslaender-und-migranten/auslaender-und-staatsangehoerigkeitsrecht-auslaenderbehoerde",
+      "source_type": "leipzig_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-SN"],
+        "section": "Leipzig — Ausländerbehörde Themenportal (hub)"
+      }
+    },
+    {
+      "url": "https://www.leipzig.de/jugend-familie-und-soziales/auslaender-und-migranten/auslaender-und-staatsangehoerigkeitsrecht-auslaenderbehoerde/aufenthalt",
+      "source_type": "leipzig_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-SN"],
+        "section": "Leipzig — Aufenthalt & Dokumentenabholung"
+      }
+    },
+    {
+      "url": "https://www.leipzig.de/jugend-familie-und-soziales/auslaender-und-migranten/auslaender-und-staatsangehoerigkeitsrecht-auslaenderbehoerde/aufenthalt/aufenthaltstitel-erwerbstaetigkeit",
+      "source_type": "leipzig_ausl",
+      "metadata": {
+        "visa_types": ["work", "freelance"],
+        "bundeslaender": ["DE-SN"],
+        "section": "Leipzig — Aufenthaltstitel Erwerbstätigkeit"
+      }
+    },
+    {
+      "url": "https://www.leipzig.de/jugend-familie-und-soziales/auslaender-und-migranten/auslaender-und-staatsangehoerigkeitsrecht-auslaenderbehoerde/aufenthalt/aufenthaltstitel-ausbildung",
+      "source_type": "leipzig_ausl",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": ["DE-SN"],
+        "section": "Leipzig — Aufenthaltstitel Ausbildung"
+      }
+    },
+    {
+      "url": "https://www.leipzig.de/jugend-familie-und-soziales/auslaender-und-migranten/auslaender-und-staatsangehoerigkeitsrecht-auslaenderbehoerde/aufenthalt/aufenthaltstitel-niederlassungserlaubnis",
+      "source_type": "leipzig_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-SN"],
+        "section": "Leipzig — Niederlassungserlaubnis"
+      }
+    },
+    {
+      "url": "https://www.dortmund.de/themen/aufenthalt-einbuergerung-und-auslaenderwesen/",
+      "source_type": "dortmund_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NW"],
+        "section": "Dortmund — Aufenthalt, Einbürgerung & Ausländerwesen (hub)"
+      }
+    },
+    {
+      "url": "https://www.service.bremen.de/dienstleistungen/aufenthaltserlaubnis-beantragen-nach-einreise-mit-visum-145128",
+      "source_type": "bremen_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HB"],
+        "section": "Bremen — Aufenthaltserlaubnis beantragen nach Einreise mit Visum"
+      }
+    },
+    {
+      "url": "https://www.service.bremen.de/dienstleistungen/aufenthaltserlaubnis-fuer-eine-erwerbstaetigkeit-und-selbstaendige-taetigkeit-165315",
+      "source_type": "bremen_service",
+      "metadata": {
+        "visa_types": ["work", "freelance"],
+        "bundeslaender": ["DE-HB"],
+        "section": "Bremen — Aufenthaltserlaubnis Erwerbstätigkeit & Selbstständige"
+      }
+    },
+    {
+      "url": "https://www.service.bremen.de/dienstleistungen/elektronischer-aufenthaltstitel-eat-145254",
+      "source_type": "bremen_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-HB"],
+        "section": "Bremen — Elektronischer Aufenthaltstitel (eAT)"
+      }
+    },
+    {
+      "url": "https://www.hannover.de/Leben-in-der-Region-Hannover/B%C3%BCrger-Service/Ausl%C3%A4nder%C2%ADangelegen%C2%ADheiten/Ausl%C3%A4nderbeh%C3%B6rden/Ausl%C3%A4nderbeh%C3%B6rde-der-Region-Hannover",
+      "source_type": "hannover_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NI"],
+        "section": "Hannover — Ausländerbehörde der Region Hannover"
+      }
+    },
+    {
+      "url": "https://region-hannover.gov.de/portal/seiten/auslaenderbehoerde-uebersicht-900000173-20001.html",
+      "source_type": "hannover_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NI"],
+        "section": "Region Hannover — Ausländerbehörde Übersicht (Service-Portal)"
+      }
+    },
+    {
+      "url": "https://region-hannover.gov.de/portal/seiten/online-antraege-der-auslaenderbehoerde-der-region-hannover-900000076-20001.html",
+      "source_type": "hannover_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-NI"],
+        "section": "Region Hannover — Online-Anträge der Ausländerbehörde"
+      }
+    },
+    {
+      "url": "https://www.nuernberg.de/internet/auslaenderbehoerde/",
+      "source_type": "nuernberg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "Nürnberg — Amt für Migration und Integration (hub)"
+      }
+    },
+    {
+      "url": "https://www.nuernberg.de/internet/auslaenderbehoerde/aufenthaltstitel.html",
+      "source_type": "nuernberg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "Nürnberg — Aufenthaltstitel beantragen"
+      }
+    },
+    {
+      "url": "https://www.nuernberg.de/internet/auslaenderbehoerde/kontakt.html",
+      "source_type": "nuernberg_ausl",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BY"],
+        "section": "Nürnberg — Kontakt zum Amt für Migration und Integration"
+      }
+    }
+  ]
+}

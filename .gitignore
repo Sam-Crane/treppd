@@ -52,8 +52,8 @@ yarn-debug.log*
 yarn-error.log*
 *.log
 
-# PWA
-public/sw.js
+# PWA (workbox auto-generated — our sw.js is hand-written, not generated)
+# public/sw.js  ← removed: committed intentionally
 public/workbox-*.js
 public/swe-worker-*.js
 
