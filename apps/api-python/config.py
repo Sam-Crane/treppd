@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # Internal API key (shared with NestJS)
     INTERNAL_API_KEY: str = Field(..., min_length=16)
 
+    # Voyage AI for embeddings (RAG pipeline). Optional so the service still
+    # boots without it; chat endpoints will degrade gracefully when missing.
+    VOYAGE_API_KEY: str | None = None
+
     # Runtime
     ENVIRONMENT: Literal["development", "staging", "production", "test"] = (
         "development"

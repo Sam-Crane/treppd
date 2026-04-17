@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { RoadmapModule } from './roadmap/roadmap.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { DocumentsModule } from './documents/documents.module';
     ProfilesModule,
     RoadmapModule,
     DocumentsModule,
+    ChatModule,
   ],
   controllers: [AppController],
 })

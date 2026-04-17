@@ -1,0 +1,235 @@
+{
+  "_comment": "Curated knowledge sources for the RAG chat. URLs verified live as of April 2026. Re-verify with `curl -L -o /dev/null -w '%{http_code}' <url>` before re-ingesting.",
+  "_metadata_rules": {
+    "visa_types": "Empty array means applies to ALL visa types. Otherwise: subset of {student, work, job_seeker, family, freelance, au_pair}.",
+    "bundeslaender": "Empty array means applies to ALL Bundeslaender. Otherwise: e.g. ['DE-BY'] for Bavaria-only.",
+    "section": "Free-text label for the page's main topic."
+  },
+  "sources": [
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Visa & Residence overview"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/visa-residence/types",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Visa types overview"
+      }
+    },
+    {
+      "url": "https://www.make-it-in-germany.com/en/living-in-germany",
+      "source_type": "make_it_in_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Living in Germany"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/migrationaufenthalt-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Migration & residence (BAMF)"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/MigrationAufenthalt/ZuwandererDrittstaaten/zuwandererdrittstaaten-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Non-EU immigrants (BAMF)"
+      }
+    },
+    {
+      "url": "https://www.bamf.de/EN/Themen/Integration/integration-node.html",
+      "source_type": "bamf",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Integration (BAMF)"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "DAAD home"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/studying-in-germany/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Studying in Germany"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/studying-in-germany/living-in-germany/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Living in Germany as a student"
+      }
+    },
+    {
+      "url": "https://www.daad.de/en/studying-in-germany/living-in-germany/health-insurance/",
+      "source_type": "daad",
+      "metadata": {
+        "visa_types": ["student"],
+        "bundeslaender": [],
+        "section": "Student health insurance"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Handbook Germany overview"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/visa-recognition-of-qualifications",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Visa & qualification recognition"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/permanent-residence-migrants",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Permanent residence (Niederlassungserlaubnis)"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/changing-residence-title",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Changing residence title"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/vocational-training-residence",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Vocational training residence"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/recognition",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Foreign qualification recognition"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/citizenship",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "German citizenship"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/health-insurance",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Health insurance"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/work-permit",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": ["work"],
+        "bundeslaender": [],
+        "section": "Work permit"
+      }
+    },
+    {
+      "url": "https://www.handbookgermany.de/en/family-reunification",
+      "source_type": "handbook_germany",
+      "metadata": {
+        "visa_types": ["family"],
+        "bundeslaender": [],
+        "section": "Family reunification"
+      }
+    },
+    {
+      "url": "https://service.berlin.de/dienstleistung/120335/",
+      "source_type": "berlin_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BE"],
+        "section": "Berlin Anmeldung procedure"
+      }
+    },
+    {
+      "url": "https://service.berlin.de/dienstleistung/120686/",
+      "source_type": "berlin_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BE"],
+        "section": "Berlin residence permit"
+      }
+    },
+    {
+      "url": "https://service.berlin.de/dienstleistung/305249/",
+      "source_type": "berlin_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BE"],
+        "section": "Berlin permanent residence"
+      }
+    },
+    {
+      "url": "https://service.berlin.de/dienstleistung/324269/",
+      "source_type": "berlin_service",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": ["DE-BE"],
+        "section": "Berlin family reunification permit"
+      }
+    },
+    {
+      "url": "https://www.rundfunkbeitrag.de/welcome/english",
+      "source_type": "rundfunkbeitrag",
+      "metadata": {
+        "visa_types": [],
+        "bundeslaender": [],
+        "section": "Rundfunkbeitrag (radio/TV tax)"
+      }
+    }
+  ]
+}
