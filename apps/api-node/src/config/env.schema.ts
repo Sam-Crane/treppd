@@ -6,14 +6,12 @@ import { z } from 'zod';
  * Missing or malformed vars cause the process to exit with a readable error.
  */
 export const envSchema = z.object({
-  // Supabase
+  // Supabase. Tokens are verified locally via JWKS against SUPABASE_URL
+  // (see apps/api-node/src/auth/jwks.service.ts), so no JWT secret is
+  // required. Only the server-side secret key is consumed here; the
+  // publishable (anon) key lives in the web app.
   SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_KEY: z.string().min(1),
-  // Legacy HS256 JWT secret — no longer required (we validate tokens via
-  // supabase.auth.getUser() instead of local signature verification).
-  // Kept optional for backwards compatibility / future use.
-  SUPABASE_JWT_SECRET: z.string().optional(),
+  SUPABASE_SECRET_KEY: z.string().min(1),
   DATABASE_URL: z.string().url().optional(),
 
   // Internal service communication

@@ -82,7 +82,7 @@ def pipeline():
     """Build a RAGPipeline with all external clients mocked."""
     env = {
         "SUPABASE_URL": "https://test.supabase.co",
-        "SUPABASE_SERVICE_KEY": "test-key",
+        "SUPABASE_SECRET_KEY": "test-key",
         "ANTHROPIC_API_KEY": "test-key",
         "INTERNAL_API_KEY": "test-internal-key-long-enough",
         "VOYAGE_API_KEY": "test-voyage-key",

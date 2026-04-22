@@ -31,7 +31,7 @@ class RoadmapService:
         settings = get_settings()
         self.supabase: Client = create_client(
             settings.SUPABASE_URL,
-            settings.SUPABASE_SERVICE_KEY,
+            settings.SUPABASE_SECRET_KEY,
         )
         self.anthropic = Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 

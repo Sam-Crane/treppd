@@ -22,7 +22,7 @@ def service():
     """Create a RoadmapService with mocked external clients."""
     env = {
         "SUPABASE_URL": "https://test.supabase.co",
-        "SUPABASE_SERVICE_KEY": "test-key",
+        "SUPABASE_SECRET_KEY": "test-key",
         "ANTHROPIC_API_KEY": "test-api-key",
         "INTERNAL_API_KEY": "test-internal-key-long-enough",
     }

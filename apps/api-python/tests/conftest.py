@@ -11,7 +11,7 @@ import os
 # Use direct assignment (not setdefault) so empty shell values don't win
 _TEST_ENV = {
     "SUPABASE_URL": "https://test.supabase.co",
-    "SUPABASE_SERVICE_KEY": "test-service-key",
+    "SUPABASE_SECRET_KEY": "sb_secret_test",
     "ANTHROPIC_API_KEY": "test-anthropic-key",
     "INTERNAL_API_KEY": "test-internal-key-long-enough-16",
     "ENVIRONMENT": "test",
