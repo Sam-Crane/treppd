@@ -23,9 +23,10 @@ class Settings(BaseSettings):
     # Anthropic
     ANTHROPIC_API_KEY: str = Field(..., min_length=1)
 
-    # Supabase
+    # Supabase — server-side secret key (formerly "service_role key").
+    # Bypasses RLS, so treat as a top-tier secret.
     SUPABASE_URL: str = Field(..., min_length=1)
-    SUPABASE_SERVICE_KEY: str = Field(..., min_length=1)
+    SUPABASE_SECRET_KEY: str = Field(..., min_length=1)
     DATABASE_URL: str | None = None
 
     # Internal API key (shared with NestJS)
