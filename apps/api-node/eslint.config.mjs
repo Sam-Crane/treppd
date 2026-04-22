@@ -6,7 +6,10 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs'],
+    // Compiled output and deps must never be linted. `dist` appears whenever
+    // someone runs `nest build` locally (or outside Docker); without this,
+    // pre-commit fails because dist/*.js/.d.ts aren't in the TS project.
+    ignores: ['eslint.config.mjs', 'dist/**', 'node_modules/**', 'coverage/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,

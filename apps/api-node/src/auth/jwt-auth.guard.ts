@@ -27,8 +27,8 @@ const ACCEPTED_ALGORITHMS = ['ES256', 'RS256'] as const;
  *
  * Why local verification:
  * - Zero network overhead per request after first JWKS fetch
- * - Works with modern asymmetric signing (ES256) which the legacy
- *   SUPABASE_JWT_SECRET (HS256) cannot validate
+ * - Works with Supabase's modern asymmetric signing keys (ES256, ECC P-256);
+ *   there is no shared JWT secret to distribute or rotate
  * - Signature, expiry, issuer, and algorithm all checked in a single
  *   `jose.jwtVerify` call
  *

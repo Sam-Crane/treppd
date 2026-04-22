@@ -12,7 +12,7 @@ before re-ingesting, so it's safe to run repeatedly without duplicates.
 
 Requires:
 - VOYAGE_API_KEY in .env (or shell)
-- SUPABASE_URL + SUPABASE_SERVICE_KEY in .env
+- SUPABASE_URL + SUPABASE_SECRET_KEY in .env
 - pgvector migration already applied: `supabase db push`
 """
 
@@ -210,7 +210,7 @@ def main() -> int:
 
     supabase = create_client(
         settings.SUPABASE_URL,
-        settings.SUPABASE_SERVICE_KEY,
+        settings.SUPABASE_SECRET_KEY,
     )
     embeddings = EmbeddingsService() if not args.dry_run else None
 

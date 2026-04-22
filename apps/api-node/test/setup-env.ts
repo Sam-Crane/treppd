@@ -11,8 +11,7 @@
 
 const defaults: Record<string, string> = {
   SUPABASE_URL: 'https://test.supabase.co',
-  SUPABASE_ANON_KEY: 'test-anon-key',
-  SUPABASE_SERVICE_KEY: 'test-service-key',
+  SUPABASE_SECRET_KEY: 'sb_secret_test',
   PYTHON_SERVICE_URL: 'http://localhost:8000',
   INTERNAL_API_KEY: 'test-internal-key-long-enough-16',
   FRONTEND_URL: 'http://localhost:3000',
