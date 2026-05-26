@@ -14,9 +14,27 @@ async function bootstrap() {
   // Security headers
   app.use(helmet());
 
-  // CORS
+  // CORS — production locks to the configured FRONTEND_URL(s) (comma-separated
+  // allowlist). In development we also accept any localhost/127.0.0.1 port,
+  // since the Next dev server drifts (3000 → 3001 → 3002…) when ports are busy.
+  const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const isDev = process.env.NODE_ENV !== 'production';
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (
+      origin: string | undefined,
+      cb: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      // Same-origin / curl / server-to-server requests have no Origin header.
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      if (isDev && /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+        return cb(null, true);
+      }
+      return cb(new Error(`CORS: origin not allowed: ${origin}`), false);
+    },
     credentials: true,
   });
 

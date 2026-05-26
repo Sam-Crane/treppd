@@ -24,3 +24,10 @@ additional_redirect_urls = [
 [auth.email]
 enable_signup = true
 enable_confirmations = true
+
+# Inject admin_role into the access-token JWT (see migration
+# 20260520000010_admin_role_jwt_hook.sql). On hosted Supabase, also enable this
+# under Dashboard → Authentication → Hooks.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"

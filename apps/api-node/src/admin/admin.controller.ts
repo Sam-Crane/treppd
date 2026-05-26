@@ -15,6 +15,7 @@ import { CurrentUser } from '../auth/user.decorator';
 import { AdminService } from './admin.service';
 import { UpsertContentDto } from './dto/upsert-content.dto';
 import { IngestDto } from './dto/ingest.dto';
+import { LogoUploadDto } from './dto/logo-upload.dto';
 
 /**
  * Admin content management + RAG ingestion.
@@ -64,5 +65,12 @@ export class AdminController {
   @UseGuards(AdminGuard)
   ingest(@Body() dto: IngestDto) {
     return this.adminService.ingest(dto);
+  }
+
+  /** Signed URL to upload a provider logo to the public-assets bucket. */
+  @Post('providers/logo-upload-url')
+  @UseGuards(AdminGuard)
+  logoUploadUrl(@Body() dto: LogoUploadDto) {
+    return this.adminService.createLogoUploadUrl(dto.mime_type);
   }
 }

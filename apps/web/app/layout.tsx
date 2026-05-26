@@ -45,6 +45,11 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'default',
   },
+  // Modern standard tag (Next only emits the deprecated apple- variant from
+  // appleWebApp.capable; this adds the current one browsers now expect).
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   icons: {
     apple: '/icons/icon-192.png',
   },
@@ -67,6 +72,10 @@ export default function RootLayout({
     // <html> before React hydrates, which React would otherwise flag.
     <html lang="en" suppressHydrationWarning>
       <body
+        // Browser extensions (Grammarly, etc.) inject attributes like
+        // data-gr-ext-installed onto <body> before hydration; suppress the
+        // resulting client/server attribute-mismatch warning.
+        suppressHydrationWarning
         className={`${inter.variable} ${jetbrainsMono.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
