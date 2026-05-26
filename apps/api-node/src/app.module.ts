@@ -25,6 +25,10 @@ import { ProvidersModule } from './providers/providers.module';
     ConfigModule.forRoot({
       isGlobal: true,
       validate: validateEnv,
+      // Under `turbo dev` the cwd is apps/api-node (no local .env); fall back
+      // to the monorepo root .env. In prod, env comes from the platform and
+      // these files simply don't exist (harmless).
+      envFilePath: ['.env', '../../.env'],
     }),
     LoggerModule.forRoot({
       pinoHttp: {
