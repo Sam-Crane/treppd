@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from config import get_settings
 from logging_config import configure_logging, request_id_ctx
-from routers import roadmap, ai, rules
+from routers import roadmap, ai, rules, admin, housing, forms
 
 # Validate env at import time — raises ValidationError with readable output
 # listing every missing or malformed variable.
@@ -57,5 +57,8 @@ async def health():
 app.include_router(roadmap.router, prefix="/roadmap", tags=["roadmap"])
 app.include_router(ai.router, prefix="/ai", tags=["ai"])
 app.include_router(rules.router, prefix="/rules", tags=["rules"])
+app.include_router(admin.router, prefix="/admin", tags=["admin"])
+app.include_router(housing.router, prefix="/housing", tags=["housing"])
+app.include_router(forms.router, prefix="/forms", tags=["forms"])
 
 logger.info("FastAPI intelligence service initialised")

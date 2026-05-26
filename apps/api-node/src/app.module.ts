@@ -16,6 +16,8 @@ import { ChatModule } from './chat/chat.module';
 import { FormsModule } from './forms/forms.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AdminModule } from './admin/admin.module';
+import { HousingModule } from './housing/housing.module';
 
 @Module({
   imports: [
@@ -79,6 +81,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     FormsModule,
     AppointmentsModule,
     NotificationsModule,
+    AdminModule,
+    HousingModule,
   ],
   controllers: [AppController],
 })

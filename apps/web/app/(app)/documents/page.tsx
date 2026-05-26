@@ -5,6 +5,7 @@ import { FileText } from 'lucide-react';
 
 import { documentsApi } from '@/lib/documents-api';
 import { DocumentGroupCard } from '@/components/documents/document-group';
+import { CompletenessPanel } from '@/components/documents/completeness-panel';
 
 function LoadingSkeleton() {
   return (
@@ -99,6 +100,8 @@ export default function DocumentsPage() {
               />
             </div>
           </div>
+
+          <CompletenessPanel />
 
           <div className="space-y-4">
             {groups.map((group) => (

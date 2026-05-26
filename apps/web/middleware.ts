@@ -33,6 +33,8 @@ export async function middleware(request: NextRequest) {
     '/appointments',
     '/settings',
     '/onboarding',
+    '/admin',
+    '/housing',
   ];
 
   const isProtected = protectedPaths.some((path) =>
@@ -70,6 +72,8 @@ export const config = {
     '/appointments/:path*',
     '/settings/:path*',
     '/onboarding/:path*',
+    '/admin/:path*',
+    '/housing/:path*',
     '/login',
     '/register',
     '/forgot-password',

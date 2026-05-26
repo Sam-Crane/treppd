@@ -27,9 +27,30 @@ export interface GeneratedEmail {
   body: string;
 }
 
+export interface SlotWatch {
+  id: string;
+  office_id: string | null;
+  booking_url: string;
+  service_label: string | null;
+  status: string;
+  last_checked_at: string | null;
+  created_at: string;
+}
+
 export const appointmentsApi = {
   generate: (payload: GenerateRequest) =>
     api.post<GeneratedEmail>('/appointments/generate', payload),
+
+  listWatches: () => api.get<SlotWatch[]>('/appointments/watches'),
+
+  createWatch: (payload: {
+    booking_url: string;
+    service_label?: string;
+    office_id?: string;
+  }) => api.post<SlotWatch>('/appointments/watches', payload),
+
+  deleteWatch: (id: string) =>
+    api.delete<{ ok: true }>(`/appointments/watches/${id}`),
 };
 
 /**

@@ -135,12 +135,108 @@ class SequenceResponse(BaseModel):
 class OfficeInfo(BaseModel):
     """Office contact information."""
     name: str
+    city: Optional[str] = None
+    office_type: Optional[str] = None
+    permit_categories: List[str] = []
     address: Optional[str] = None
     phone: Optional[str] = None
+    contact_email: Optional[str] = None
     booking_url: Optional[str] = None
+    verified: bool = False
 
 
 class OfficesResponse(BaseModel):
     """Office listing for a Bundesland."""
     bundesland: str
     offices: List[OfficeInfo] = []
+
+
+# === Housing ===
+
+class WbsRequest(BaseModel):
+    """WBS (Wohnberechtigungsschein) eligibility estimate input."""
+    bundesland: str
+    household_size: int = 1
+    annual_net_income_eur: float
+
+
+class WohngeldRequest(BaseModel):
+    """Wohngeld (housing benefit) indicator input."""
+    bundesland: str
+    household_size: int = 1
+    monthly_net_income_eur: float
+    monthly_rent_eur: float
+
+
+class HousingEstimateResponse(BaseModel):
+    """Result of a housing eligibility/indicator calculation.
+
+    `eligible` is None when the necessary verified thresholds are not yet
+    configured for the Bundesland — the UI then shows guidance + office link
+    rather than a false answer.
+    """
+    eligible: Optional[bool] = None
+    indicator: Optional[str] = None        # likely | unlikely | unknown
+    threshold_eur: Optional[float] = None
+    explanation: str
+    disclaimer: str
+    next_step: Optional[str] = None
+
+
+# === Document completeness ===
+
+class ReviewDocumentsRequest(BaseModel):
+    """Inputs for an AI completeness summary. The deterministic set-difference
+    is computed in NestJS and passed in — Claude only writes prose, it does not
+    decide what is required (data-integrity rule)."""
+    profile: dict = {}
+    satisfied: List[str] = []
+    missing: List[str] = []
+    warnings: List[dict] = []
+
+
+class ReviewDocumentsResponse(BaseModel):
+    summary_en: str
+
+
+# === Form PDF ===
+
+class PdfField(BaseModel):
+    label: str
+    value: Optional[str] = None
+
+
+class GeneratePdfRequest(BaseModel):
+    form_name: str
+    fields: List[PdfField] = []
+
+
+class GeneratePdfResponse(BaseModel):
+    pdf_base64: str
+    filename: str
+
+
+# === Admin / Ingestion ===
+
+class IngestRequest(BaseModel):
+    """Trigger a RAG ingestion run. `only` filters sources.json by URL
+    substring (matches the CLI --only). `dry_run` fetches+chunks without
+    embedding or writing."""
+    only: Optional[List[str]] = None
+    dry_run: bool = False
+
+
+class IngestSourceResult(BaseModel):
+    """Per-source ingestion outcome."""
+    url: str
+    chunks: int
+    ok: bool
+    error: Optional[str] = None
+
+
+class IngestResponse(BaseModel):
+    """Aggregate ingestion outcome."""
+    dry_run: bool
+    ingested_sources: int
+    total_chunks: int
+    results: List[IngestSourceResult] = []

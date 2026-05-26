@@ -13,6 +13,7 @@ import {
 import { ProcessTypePicker } from '@/components/appointments/process-type-picker';
 import { OfficeDetailsForm } from '@/components/appointments/office-details-form';
 import { GeneratedEmailPanel } from '@/components/appointments/generated-email-panel';
+import { SlotWatches } from '@/components/appointments/slot-watches';
 
 export default function AppointmentsPage() {
   const [processType, setProcessType] = useState<ProcessType | null>(null);
@@ -167,6 +168,8 @@ export default function AppointmentsPage() {
           />
         </motion.section>
       )}
+
+      <SlotWatches />
     </div>
   );
 }

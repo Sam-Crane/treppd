@@ -287,6 +287,118 @@ export class FormsService {
     return { ok: true, updated_at: row.updated_at };
   }
 
+  /** First/last name live on the users table, not user_profiles. */
+  private async getUserNames(
+    userId: string,
+  ): Promise<{ first_name?: string; last_name?: string }> {
+    const { data } = await this.supabase
+      .getClient()
+      .from('users')
+      .select('first_name, last_name')
+      .eq('id', userId)
+      .maybeSingle();
+    return (data as { first_name?: string; last_name?: string } | null) ?? {};
+  }
+
+  /**
+   * Deterministically pre-fill what we already know (saved session values win,
+   * then profile-derived values). No AI: we only copy data the user gave us, so
+   * there's nothing to hallucinate. Returns the proposed values for the user to
+   * REVIEW before anything is downloaded.
+   */
+  async autofill(
+    userId: string,
+    formCode: string,
+  ): Promise<{
+    values: Record<string, string>;
+    autofilled: string[];
+    needs_input: string[];
+  }> {
+    const form = await this.getByCode(userId, formCode);
+    const profile = await this.getUserProfile(userId);
+    const names = await this.getUserNames(userId);
+    const { values: saved } = await this.getSession(userId, formCode);
+
+    const employerOrUni =
+      (profile.employer_name as string) ||
+      (profile.university_name as string) ||
+      '';
+
+    const derive = (fieldId: string): string => {
+      const id = fieldId.toLowerCase();
+      const savedValue = saved[fieldId];
+      if (
+        savedValue != null &&
+        savedValue !== '' &&
+        typeof savedValue !== 'object'
+      ) {
+        return String(savedValue as string | number | boolean);
+      }
+      if (id.includes('first_name') || id === 'first_names')
+        return names.first_name ?? '';
+      if (id.includes('last_name') || id.includes('family'))
+        return names.last_name ?? '';
+      if (id.includes('nationality'))
+        return (profile.nationality as string) ?? '';
+      if (
+        id === 'entry_date' ||
+        id.includes('arrival') ||
+        id === 'move_in_date'
+      )
+        return (profile.arrival_date as string) ?? '';
+      if (id.includes('employer') || id.includes('university'))
+        return employerOrUni;
+      if (id.includes('city')) return (profile.city as string) ?? '';
+      return '';
+    };
+
+    const values: Record<string, string> = {};
+    const autofilled: string[] = [];
+    const needsInput: string[] = [];
+    for (const field of form.fields) {
+      const v = derive(field.field_id);
+      values[field.field_id] = v;
+      if (v) autofilled.push(field.field_id);
+      else if (field.required) needsInput.push(field.field_id);
+    }
+
+    return { values, autofilled, needs_input: needsInput };
+  }
+
+  /**
+   * Produce a branded preparation-summary PDF (base64) for download. Uses the
+   * autofilled values (which already merge saved session input). Rendering is
+   * delegated to FastAPI (reportlab).
+   */
+  async generatePdf(
+    userId: string,
+    formCode: string,
+  ): Promise<{ pdf_base64: string; filename: string }> {
+    const form = await this.getByCode(userId, formCode);
+    const { values } = await this.autofill(userId, formCode);
+
+    const fields = form.fields.map((f) => ({
+      label: f.label_en,
+      value: values[f.field_id] ?? '',
+    }));
+
+    const result = await this.pythonService.generatePdf({
+      form_name: form.name_en,
+      fields,
+    });
+
+    if (!result) {
+      throw new ServiceUnavailableException(
+        'PDF generation is temporarily unavailable. Please try again shortly.',
+      );
+    }
+    const typed = result as unknown as { pdf_base64: string; filename: string };
+    return {
+      pdf_base64: typed.pdf_base64,
+      filename: typed.filename ?? 'treppd-form.pdf',
+    };
+  }
+
   /** Reset button / GDPR erasure. */
   async clearSession(userId: string, formCode: string): Promise<{ ok: true }> {
     const { error } = await this.supabase

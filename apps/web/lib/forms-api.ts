@@ -69,4 +69,16 @@ export const formsApi = {
 
   clearSession: (formCode: string) =>
     api.delete<{ ok: true }>(`/forms/${formCode}/session`),
+
+  autofill: (formCode: string) =>
+    api.get<{
+      values: Record<string, string>;
+      autofilled: string[];
+      needs_input: string[];
+    }>(`/forms/${formCode}/autofill`),
+
+  generatePdf: (formCode: string) =>
+    api.post<{ pdf_base64: string; filename: string }>(
+      `/forms/${formCode}/pdf`,
+    ),
 };

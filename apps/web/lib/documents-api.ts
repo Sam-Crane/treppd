@@ -54,8 +54,18 @@ export interface ChecklistGroup {
   documents: DocumentRequirementWithUploads[];
 }
 
+export interface CompletenessResult {
+  satisfied: string[];
+  missing: string[];
+  warnings: Array<{ tag?: string; issue: string; document_name: string }>;
+  summary_en: string;
+  fallback: boolean;
+}
+
 export const documentsApi = {
   checklist: () => api.get<ChecklistGroup[]>('/documents/checklist'),
+
+  completeness: () => api.get<CompletenessResult>('/documents/completeness'),
 
   list: () => api.get<UserDocument[]>('/documents'),
 
