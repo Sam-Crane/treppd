@@ -18,6 +18,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AdminModule } from './admin/admin.module';
 import { HousingModule } from './housing/housing.module';
+import { ProvidersModule } from './providers/providers.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { HousingModule } from './housing/housing.module';
     NotificationsModule,
     AdminModule,
     HousingModule,
+    ProvidersModule,
   ],
   controllers: [AppController],
 })

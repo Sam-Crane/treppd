@@ -5,10 +5,19 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
+import { randomUUID } from 'crypto';
 
 import { SupabaseService } from '../supabase/supabase.service';
 import { PythonService } from '../roadmap/python.service';
 import { IngestDto } from './dto/ingest.dto';
+
+const LOGO_BUCKET = 'public-assets';
+const LOGO_MIME_EXT: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/svg+xml': 'svg',
+  'image/webp': 'webp',
+};
 
 /**
  * Maps the public `:resource` slug to a real table. The client never names a
@@ -50,6 +59,11 @@ const RESOURCES: Record<string, ResourceConfig> = {
     table: 'requirement_tags',
     idColumn: 'tag',
     stampVerifiedAt: false,
+  },
+  'service-providers': {
+    table: 'service_providers',
+    idColumn: 'id',
+    stampVerifiedAt: true,
   },
 };
 
@@ -176,6 +190,40 @@ export class AdminService {
       throw new BadRequestException(error.message);
     }
     return { ok: true };
+  }
+
+  /**
+   * Signed URL for uploading a provider logo to the PUBLIC `public-assets`
+   * bucket. Returns the eventual public URL to store in
+   * service_providers.logo_url. Mirrors the documents signed-upload flow.
+   */
+  async createLogoUploadUrl(mimeType: string): Promise<{
+    storage_path: string;
+    signed_url: string;
+    token: string;
+    public_url: string;
+  }> {
+    const ext = LOGO_MIME_EXT[mimeType];
+    if (!ext) {
+      throw new BadRequestException(
+        `Unsupported logo type "${mimeType}". Allowed: PNG, JPG, SVG, WEBP.`,
+      );
+    }
+    const storagePath = `providers/${randomUUID()}.${ext}`;
+    const storage = this.supabase.getClient().storage.from(LOGO_BUCKET);
+
+    const { data, error } = await storage.createSignedUploadUrl(storagePath);
+    if (error || !data) {
+      this.logger.warn({ reason: error?.message }, 'Logo upload URL failed');
+      throw new BadRequestException('Could not prepare logo upload.');
+    }
+    const { data: pub } = storage.getPublicUrl(storagePath);
+    return {
+      storage_path: storagePath,
+      signed_url: data.signedUrl,
+      token: data.token,
+      public_url: pub.publicUrl,
+    };
   }
 
   async ingest(dto: IngestDto): Promise<Record<string, unknown>> {

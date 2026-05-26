@@ -1,5 +1,18 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { decodeAdminRole } from '@/lib/auth/claims';
+
+const CONSUMER_PATHS = [
+  '/dashboard',
+  '/roadmap',
+  '/forms',
+  '/chat',
+  '/documents',
+  '/appointments',
+  '/settings',
+  '/onboarding',
+  '/housing',
+];
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
@@ -24,39 +37,35 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  const protectedPaths = [
-    '/dashboard',
-    '/roadmap',
-    '/forms',
-    '/chat',
-    '/documents',
-    '/appointments',
-    '/settings',
-    '/onboarding',
-    '/admin',
-    '/housing',
-  ];
+  const path = request.nextUrl.pathname;
+  const isAdmin = decodeAdminRole(session?.access_token) !== null;
 
-  const isProtected = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
-  );
+  const isAdminPath = path.startsWith('/admin');
+  const isConsumerPath = CONSUMER_PATHS.some((p) => path.startsWith(p));
 
-  // Redirect unauthenticated users away from protected routes
-  if (isProtected && !session) {
+  // Unauthenticated users can't reach any protected area.
+  if ((isAdminPath || isConsumerPath) && !session) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Redirect logged-in users away from auth pages and marketing landing
-  // (but NOT from /verify-email, /reset-password, /auth/callback — those
-  // have their own logic for handling intermediate session states).
-  const authPaths = ['/login', '/register', '/forgot-password'];
-  const isAuthPage = authPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
-  );
-  const isLandingPage = request.nextUrl.pathname === '/';
-
-  if ((isAuthPage || isLandingPage) && session) {
+  // Hard role separation:
+  //  - non-admins cannot enter the admin portal
+  //  - admins are kept out of the consumer app
+  if (isAdminPath && session && !isAdmin) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+  if (isConsumerPath && isAdmin) {
+    return NextResponse.redirect(new URL('/admin', request.url));
+  }
+
+  // Logged-in users leaving auth pages / landing → their home surface.
+  const authPaths = ['/login', '/register', '/forgot-password'];
+  const isAuthPage = authPaths.some((p) => path.startsWith(p));
+  const isLandingPage = path === '/';
+  if ((isAuthPage || isLandingPage) && session) {
+    return NextResponse.redirect(
+      new URL(isAdmin ? '/admin' : '/dashboard', request.url),
+    );
   }
 
   return response;

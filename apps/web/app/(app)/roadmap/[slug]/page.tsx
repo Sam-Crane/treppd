@@ -27,6 +27,7 @@ import {
 } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { CompleteStepButton } from '@/components/roadmap/complete-step-button';
+import { ProviderSuggestions } from '@/components/roadmap/provider-suggestions';
 
 interface DocumentRequirement {
   document_name_en: string;
@@ -350,6 +351,9 @@ export default function StepDetailPage() {
           </div>
         </Card>
       )}
+
+      {/* Recommended service providers for this step */}
+      <ProviderSuggestions stepSlug={step.slug} />
 
       {/* AI Notice */}
       {step.ai_suggested && (
