@@ -32,6 +32,11 @@ export class DocumentsController {
     return this.documentsService.getChecklist(user.userId);
   }
 
+  @Get('completeness')
+  getCompleteness(@CurrentUser() user: { userId: string }) {
+    return this.documentsService.getCompleteness(user.userId);
+  }
+
   @Get('checklist/:step_slug')
   getChecklistByStep(
     @CurrentUser() user: { userId: string },

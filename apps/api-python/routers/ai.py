@@ -11,9 +11,12 @@ from models import (
     ChatResponse,
     FieldExplainRequest,
     FieldExplainResponse,
+    ReviewDocumentsRequest,
+    ReviewDocumentsResponse,
 )
 from services.claude_emails import get_email_pipeline
 from services.claude_fields import FieldNotFoundError, get_field_pipeline
+from services.claude_documents import get_document_review_service
 from services.claude_rag import get_pipeline, to_sse
 
 logger = logging.getLogger(__name__)
@@ -147,3 +150,20 @@ async def appointment_email(request: AppointmentEmailRequest):
         subject=parsed["subject"],
         body=parsed["body"],
     )
+
+
+@router.post("/review-documents", response_model=ReviewDocumentsResponse)
+async def review_documents(request: ReviewDocumentsRequest):
+    """Write a plain-English summary of a pre-computed completeness checklist.
+
+    The satisfied/missing/warnings lists are decided upstream in NestJS; Claude
+    only narrates them. Always returns 200 (templated fallback on AI failure).
+    """
+    service = get_document_review_service()
+    summary = service.summarize(
+        profile=request.profile,
+        satisfied=request.satisfied,
+        missing=request.missing,
+        warnings=request.warnings,
+    )
+    return ReviewDocumentsResponse(summary_en=summary)

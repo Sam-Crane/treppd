@@ -11,6 +11,7 @@ import type {
   GenerateAppointmentEmailDto,
   OfficeDetailsDto,
 } from './dto/generate.dto';
+import type { CreateWatchDto } from './dto/watch.dto';
 
 export interface AppointmentEmailResult {
   subject: string;
@@ -88,5 +89,57 @@ export class AppointmentsService {
       subject: typed.subject ?? '',
       body: typed.body ?? '',
     };
+  }
+
+  // ----------------------------------------------------- slot watches (WS7)
+
+  async listWatches(userId: string): Promise<unknown[]> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('appointment_watches')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      this.logger.warn({ err: error }, 'Failed to list watches');
+      return [];
+    }
+    return (data as unknown[]) ?? [];
+  }
+
+  async createWatch(
+    userId: string,
+    dto: CreateWatchDto,
+  ): Promise<Record<string, unknown>> {
+    const { data, error } = await this.supabase
+      .getClient()
+      .from('appointment_watches')
+      .insert({
+        user_id: userId,
+        office_id: dto.office_id ?? null,
+        booking_url: dto.booking_url,
+        service_label: dto.service_label ?? null,
+      })
+      .select('*')
+      .single();
+    if (error || !data) {
+      this.logger.warn({ err: error }, 'Failed to create watch');
+      throw new ServiceUnavailableException('Could not create watch.');
+    }
+    return data as Record<string, unknown>;
+  }
+
+  async deleteWatch(userId: string, watchId: string): Promise<{ ok: true }> {
+    const { error } = await this.supabase
+      .getClient()
+      .from('appointment_watches')
+      .delete()
+      .eq('user_id', userId)
+      .eq('id', watchId);
+    if (error) {
+      this.logger.warn({ err: error }, 'Failed to delete watch');
+      throw new NotFoundException('Watch not found.');
+    }
+    return { ok: true };
   }
 }

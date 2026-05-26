@@ -2,18 +2,22 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Bell,
   FileCheck2,
   FileText,
   HelpCircle,
+  Home,
   LayoutDashboard,
   Mail,
   Map,
   Settings,
+  Shield,
   Sparkles,
 } from 'lucide-react';
 
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { ThemeToggle, Button } from '@/components/ui';
 import { Logo } from '@/components/ui/logo';
@@ -43,6 +47,7 @@ const primaryNav = [
   { href: '/roadmap', label: 'Roadmap', icon: Map },
   { href: '/documents', label: 'Documents', icon: FileText },
   { href: '/forms', label: 'Forms', icon: FileCheck2 },
+  { href: '/housing', label: 'Housing', icon: Home },
   { href: '/appointments', label: 'Emails', icon: Mail },
 ] as const;
 
@@ -101,6 +106,14 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    api
+      .get<{ isAdmin: boolean }>('/admin/whoami')
+      .then((r) => setIsAdmin(r.isAdmin))
+      .catch(() => setIsAdmin(false));
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-base text-text-primary transition-colors">
@@ -139,6 +152,14 @@ export default function AppLayout({
               isActive={pathname === item.href}
             />
           ))}
+          {isAdmin && (
+            <NavLink
+              href="/admin"
+              label="Admin"
+              Icon={Shield}
+              isActive={pathname.startsWith('/admin')}
+            />
+          )}
 
           {/* Upgrade teaser fills the middle whitespace productively */}
           <div className="mt-4 rounded-xl border border-border-default bg-gradient-to-br from-accent-subtle via-surface to-surface p-3">

@@ -54,6 +54,24 @@ export class FormsController {
     return this.formsService.explainField(user.userId, formCode, fieldId);
   }
 
+  /** Deterministic pre-fill from profile + saved session (for user review). */
+  @Get(':form_code/autofill')
+  autofill(
+    @CurrentUser() user: { userId: string },
+    @Param('form_code') formCode: string,
+  ) {
+    return this.formsService.autofill(user.userId, formCode);
+  }
+
+  /** Branded preparation-summary PDF (base64) for download. */
+  @Post(':form_code/pdf')
+  generatePdf(
+    @CurrentUser() user: { userId: string },
+    @Param('form_code') formCode: string,
+  ) {
+    return this.formsService.generatePdf(user.userId, formCode);
+  }
+
   /** Retrieve the user's saved progress on this form. */
   @Get(':form_code/session')
   getSession(

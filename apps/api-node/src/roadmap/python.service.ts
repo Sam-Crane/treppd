@@ -135,6 +135,46 @@ export class PythonService {
     return this.fetchWithRetry('/ai/appointment-email', payload);
   }
 
+  async generatePdf(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/forms/generate-pdf', payload);
+  }
+
+  async reviewDocuments(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/ai/review-documents', payload);
+  }
+
+  async housingWbs(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/housing/wbs', payload);
+  }
+
+  async housingWohngeld(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/housing/wohngeld', payload);
+  }
+
+  /**
+   * Trigger a RAG ingestion run (admin-only, proxied from AdminController).
+   * Long timeout because fetching + embedding many sources is slow, and
+   * NO retries: ingest_source writes as it goes, so a retry could re-run a
+   * partially-completed batch. A failed run is reported, not retried.
+   */
+  async ingestKnowledge(
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> {
+    return this.fetchWithRetry('/admin/ingest', payload, {
+      retries: 0,
+      baseDelayMs: 0,
+      timeoutMs: 120_000,
+    });
+  }
+
   /**
    * Open a streaming connection to the FastAPI /ai/chat/stream endpoint
    * and return the raw SSE body as a ReadableStream. The caller is

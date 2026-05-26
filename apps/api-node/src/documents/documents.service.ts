@@ -7,6 +7,7 @@ import {
 import { Logger } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
 import { SupabaseService } from '../supabase/supabase.service';
+import { PythonService } from '../roadmap/python.service';
 
 const STORAGE_BUCKET = 'user-documents';
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -56,7 +57,135 @@ export class DocumentsService {
   constructor(
     private readonly supabase: SupabaseService,
     private readonly logger: Logger,
+    private readonly python: PythonService,
   ) {}
+
+  // ----------------------------------------------------- completeness review
+
+  /**
+   * Deterministic per-tag completeness review across the user's roadmap.
+   *
+   * A requirement is "satisfied" when the user has uploaded a doc matching it
+   * (by step_slug + document_name_en). A tag is satisfied if ANY requirement
+   * carrying it is satisfied; otherwise it's missing. Warnings flag satisfied
+   * docs that still need translation/apostille/certified copy. Claude (via
+   * Python) only writes the prose summary — it never changes the verdict.
+   */
+  async getCompleteness(userId: string) {
+    const { data: roadmap } = await this.supabase
+      .getClient()
+      .from('user_roadmaps')
+      .select('steps')
+      .eq('user_id', userId)
+      .single();
+
+    if (!roadmap) {
+      throw new NotFoundException(
+        'No active roadmap found. Generate a roadmap first.',
+      );
+    }
+
+    const steps = (roadmap.steps as Array<{ slug: string }>) ?? [];
+    const stepSlugs = steps.map((s) => s.slug);
+
+    const { data: profile } = await this.supabase
+      .getClient()
+      .from('user_profiles')
+      .select('visa_type, bundesland')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    const { data: requirements } = await this.supabase
+      .getClient()
+      .from('document_requirements')
+      .select(
+        'id, step_slug, document_name_en, needs_translation, needs_apostille, needs_certified_copy, document_requirement_tags(tag)',
+      )
+      .in('step_slug', stepSlugs);
+
+    const { data: uploads } = await this.supabase
+      .getClient()
+      .from('user_documents')
+      .select('step_slug, document_name_en')
+      .eq('user_id', userId);
+
+    const uploadedKeys = new Set(
+      ((uploads ?? []) as Array<Record<string, unknown>>).map(
+        (u) =>
+          `${String(u.step_slug)}::${String(u.document_name_en).toLowerCase()}`,
+      ),
+    );
+
+    const satisfiedTags = new Set<string>();
+    const allTags = new Set<string>();
+    const warnings: Array<{
+      tag?: string;
+      issue: string;
+      document_name: string;
+    }> = [];
+
+    type Req = {
+      step_slug: string;
+      document_name_en: string;
+      needs_translation: boolean;
+      needs_apostille: boolean;
+      needs_certified_copy: boolean;
+      document_requirement_tags: Array<{ tag: string }>;
+    };
+
+    for (const req of (requirements ?? []) as unknown as Req[]) {
+      const tags = (req.document_requirement_tags ?? []).map((t) => t.tag);
+      tags.forEach((t) => allTags.add(t));
+
+      const key = `${req.step_slug}::${req.document_name_en.toLowerCase()}`;
+      const isSatisfied = uploadedKeys.has(key);
+      if (!isSatisfied) continue;
+
+      tags.forEach((t) => satisfiedTags.add(t));
+      if (req.needs_translation)
+        warnings.push({
+          issue: 'needs_translation',
+          document_name: req.document_name_en,
+          tag: tags[0],
+        });
+      if (req.needs_apostille)
+        warnings.push({
+          issue: 'needs_apostille',
+          document_name: req.document_name_en,
+          tag: tags[0],
+        });
+      if (req.needs_certified_copy)
+        warnings.push({
+          issue: 'needs_certified_copy',
+          document_name: req.document_name_en,
+          tag: tags[0],
+        });
+    }
+
+    const satisfied = [...satisfiedTags];
+    const missing = [...allTags].filter((t) => !satisfiedTags.has(t));
+
+    const aiResult = await this.python.reviewDocuments({
+      profile: profile ?? {},
+      satisfied,
+      missing,
+      warnings,
+    });
+
+    const summary =
+      (aiResult?.summary_en as string | undefined) ??
+      (missing.length === 0
+        ? 'You appear to have all required document types covered. Always verify with your local Ausländerbehörde.'
+        : `Still needed: ${missing.join(', ')}. Always verify with your local Ausländerbehörde.`);
+
+    return {
+      satisfied,
+      missing,
+      warnings,
+      summary_en: summary,
+      fallback: !aiResult,
+    };
+  }
 
   // --------------------------------------------------------- checklist (read)
 
