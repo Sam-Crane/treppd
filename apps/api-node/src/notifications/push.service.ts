@@ -45,9 +45,20 @@ export class PushService implements OnModuleInit {
       return;
     }
 
-    webpush.setVapidDetails(subject, publicKey, privateKey);
-    this.isConfigured = true;
-    this.logger.log('Web Push VAPID configured');
+    // Validate strictly: web-push throws if a key fails its length/shape check
+    // (e.g. .env.example placeholders, or a key from the wrong curve). We must
+    // NOT let that crash the whole API — degrade to "push disabled" just like
+    // when the keys are missing, matching the env.schema contract.
+    try {
+      webpush.setVapidDetails(subject, publicKey, privateKey);
+      this.isConfigured = true;
+      this.logger.log('Web Push VAPID configured');
+    } catch (err) {
+      this.logger.warn(
+        { reason: (err as Error).message },
+        'VAPID keys are invalid — push notifications disabled. Generate a real keypair with `npx web-push generate-vapid-keys`.',
+      );
+    }
   }
 
   /** Returns the public key so the frontend can subscribe. */
