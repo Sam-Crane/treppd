@@ -60,7 +60,9 @@ async function bootstrap() {
   }
 
   const port = process.env.PORT ?? 3001;
-  await app.listen(port);
+  // Bind to all interfaces so GitHub Codespaces / Docker can forward the
+  // port; localhost-only binding would 502 the public forwarded URL.
+  await app.listen(port, '0.0.0.0');
 
   const logger = app.get(Logger);
   logger.log(`Treppd core API listening on :${port}`);
