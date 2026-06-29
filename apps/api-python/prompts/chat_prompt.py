@@ -79,11 +79,21 @@ def trim_history(
     messages: Iterable[dict],
     keep_last: int = 8,
 ) -> list[dict]:
-    """Cap conversation history to the last N messages to manage tokens.
+    """Cap conversation history to the last N messages and sanitise each one.
 
     Always keeps the most recent `keep_last` messages. The system prompt
     itself is NOT included here — Claude takes it via the `system`
     parameter of the messages API.
+
+    Stored conversation rows carry an extra `ts` timestamp alongside
+    `role`/`content`. The Anthropic Messages API rejects any key it does not
+    recognise ("messages.N.ts: Extra inputs are not permitted"), so we strip
+    every message down to exactly {role, content} before it reaches the API.
     """
     seq = list(messages)
-    return seq[-keep_last:]
+    trimmed = seq[-keep_last:]
+    return [
+        {"role": m["role"], "content": m["content"]}
+        for m in trimmed
+        if "role" in m and "content" in m
+    ]

@@ -3,22 +3,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  CheckCircle2,
-  FileCheck2,
-  Map,
-  MessageCircle,
-  Shield,
-} from 'lucide-react';
+import { ArrowRight, CheckCircle2, Circle } from 'lucide-react';
 
 import { Button } from '@/components/ui';
 
-const TRUST_ITEMS = [
-  { icon: Shield, text: 'Grounded in verified official sources only' },
-  { icon: Map, text: 'Personalised for your visa type + Bundesland' },
-  { icon: MessageCircle, text: 'AI assistant that cites every source' },
-  { icon: FileCheck2, text: '84 form fields with common-mistake warnings' },
+const STEPS = [
+  { label: 'Register your address (Anmeldung)', state: 'done' as const },
+  { label: 'Open a blocked account (Sperrkonto)', state: 'done' as const },
+  { label: 'Apply for your residence permit', state: 'active' as const },
+  { label: 'Enrol in health insurance', state: 'todo' as const },
+  { label: 'Open a German bank account', state: 'todo' as const },
 ];
 
 export function Hero() {
@@ -91,34 +85,69 @@ export function Hero() {
             </p>
           </motion.div>
 
-          {/* Right: trust indicators as a visual stack */}
+          {/* Right: product preview — a mini roadmap */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
           >
-            <div className="space-y-3">
-              {TRUST_ITEMS.map((item, i) => (
-                <motion.div
-                  key={item.text}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    duration: 0.4,
-                    delay: 0.3 + i * 0.1,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className="flex items-center gap-3 rounded-xl border border-border-default bg-surface/80 p-4 shadow-xs backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                    <item.icon className="h-5 w-5" />
-                  </div>
-                  <span className="text-sm font-medium text-text-primary">
-                    {item.text}
+            <div className="overflow-hidden rounded-2xl border border-border-default bg-surface shadow-xl">
+              {/* window chrome */}
+              <div className="flex items-center gap-1.5 border-b border-border-default bg-subtle/60 px-4 py-3">
+                <span className="h-2.5 w-2.5 rounded-full bg-error/50" />
+                <span className="h-2.5 w-2.5 rounded-full bg-warning/50" />
+                <span className="h-2.5 w-2.5 rounded-full bg-success/50" />
+                <span className="ml-2 truncate text-xs font-medium text-text-muted">
+                  Your roadmap · Student visa · Bavaria
+                </span>
+              </div>
+
+              {/* progress */}
+              <div className="px-5 pt-5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-text-primary">
+                    2 of 5 steps done
                   </span>
-                </motion.div>
-              ))}
+                  <span className="text-text-muted">40%</span>
+                </div>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-subtle">
+                  <div className="h-full w-2/5 rounded-full bg-accent" />
+                </div>
+              </div>
+
+              {/* steps */}
+              <ul className="space-y-2 p-5">
+                {STEPS.map((step) => (
+                  <li
+                    key={step.label}
+                    className={
+                      'flex items-center gap-3 rounded-lg border px-3 py-2.5 text-sm ' +
+                      (step.state === 'active'
+                        ? 'border-accent/40 bg-accent/5 font-medium text-text-primary'
+                        : 'border-transparent text-text-secondary')
+                    }
+                  >
+                    {step.state === 'done' ? (
+                      <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-success" />
+                    ) : step.state === 'active' ? (
+                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center">
+                        <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+                      </span>
+                    ) : (
+                      <Circle className="h-5 w-5 flex-shrink-0 text-border-strong" />
+                    )}
+                    <span className={step.state === 'done' ? 'opacity-60' : ''}>
+                      {step.label}
+                    </span>
+                    {step.state === 'active' && (
+                      <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+                        Next
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Floating stat badge */}
@@ -126,7 +155,7 @@ export function Hero() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.8 }}
-              className="absolute -left-4 -top-4 hidden rounded-full border border-border-default bg-surface px-3 py-1.5 shadow-md lg:block"
+              className="absolute -bottom-3 -left-3 hidden rounded-full border border-border-default bg-surface px-3 py-1.5 shadow-md lg:block"
             >
               <span className="text-xs font-semibold text-text-primary">
                 556 verified sources

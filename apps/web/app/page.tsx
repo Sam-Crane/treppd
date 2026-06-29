@@ -4,6 +4,7 @@ import { TopNav } from '@/components/landing/top-nav';
 import { Hero } from '@/components/landing/hero';
 import { FeatureGrid } from '@/components/landing/feature-grid';
 import { HowItWorks } from '@/components/landing/how-it-works';
+import { Testimonials } from '@/components/landing/testimonials';
 import { FinalCTA } from '@/components/landing/final-cta';
 import { Footer } from '@/components/landing/footer';
 
@@ -57,6 +58,7 @@ export default function LandingPage() {
         <Hero />
         <FeatureGrid />
         <HowItWorks />
+        <Testimonials />
         <FinalCTA />
       </main>
       <Footer />
