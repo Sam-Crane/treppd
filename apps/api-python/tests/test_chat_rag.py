@@ -73,6 +73,30 @@ class TestTrimHistory:
         history = [{"role": "user", "content": "x"}]
         assert trim_history(history, keep_last=8) == history
 
+    def test_strips_extra_keys_like_ts(self):
+        # Regression: stored conversation rows carry a `ts` timestamp. The
+        # Anthropic Messages API rejects unknown keys with
+        # "messages.0.ts: Extra inputs are not permitted", so trim_history
+        # must reduce every message to exactly {role, content}.
+        history = [
+            {"role": "user", "content": "hi", "ts": "2026-06-29T10:00:00Z"},
+            {"role": "assistant", "content": "hello", "ts": "2026-06-29T10:00:01Z"},
+        ]
+        trimmed = trim_history(history, keep_last=8)
+        assert trimmed == [
+            {"role": "user", "content": "hi"},
+            {"role": "assistant", "content": "hello"},
+        ]
+        assert all(set(m.keys()) == {"role", "content"} for m in trimmed)
+
+    def test_drops_malformed_messages(self):
+        history = [
+            {"role": "user", "content": "ok"},
+            {"role": "user"},  # missing content
+            {"content": "no role"},  # missing role
+        ]
+        assert trim_history(history) == [{"role": "user", "content": "ok"}]
+
 
 # --------------------------------------------------------- pipeline retrieve
 
