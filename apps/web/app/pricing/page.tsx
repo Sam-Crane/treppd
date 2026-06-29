@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Check, Building2, GraduationCap, Zap } from 'lucide-react';
+import { Check, Sparkles, GraduationCap, Zap } from 'lucide-react';
 
 import { TopNav } from '@/components/landing/top-nav';
 import { Footer } from '@/components/landing/footer';
@@ -27,53 +27,47 @@ interface Tier {
 
 const TIERS: Tier[] = [
   {
-    name: 'Starter',
+    name: 'Free',
     price: '€0',
     period: 'forever',
-    headline: 'For students figuring it out solo.',
+    headline: 'Get started and see your first steps.',
     features: [
-      'Personalised roadmap',
-      'AI assistant (30 messages / day)',
-      '3 form guides (Anmeldung + residence permit + health insurance)',
-      'Basic deadline alerts',
+      'Personalised roadmap preview',
+      'Basic document checklist',
       'Community support',
     ],
     cta: { label: 'Start free', href: '/register' },
     icon: GraduationCap,
   },
   {
-    name: 'Pro',
-    price: '€9.99',
-    period: '/ month',
-    headline: 'For workers and families who want the full toolkit.',
+    name: 'Basic',
+    price: '€49',
+    period: 'one-time · 6 months',
+    headline: 'Everything you need to settle in.',
     features: [
-      'Everything in Starter',
-      'Unlimited AI assistant',
-      'All form guides + city-specific variants',
-      'Appointment email generator',
-      'Document upload & checklist',
-      'Priority push notifications',
-      'Email support (24h response)',
+      'Full personalised roadmap (any visa type)',
+      'All document checklists',
+      'Progress tracker',
+      'Deadline alerts (90 / 30 / 7 days)',
     ],
-    cta: { label: 'Start Pro trial', href: '/register?plan=pro' },
-    highlight: true,
+    cta: { label: 'Get Basic', href: '/register?plan=basic' },
     icon: Zap,
   },
   {
-    name: 'For organisations',
-    price: '€2–25',
-    period: '/ person / year',
-    headline: 'For universities + employers bringing international talent.',
+    name: 'Pro',
+    price: '€99',
+    period: 'one-time · 6 months',
+    headline: 'The full co-pilot — AI and form help included.',
     features: [
-      'Managed Treppd for every hire / student',
-      'Central dashboard for HR / international office',
-      'Custom Bundesland + office coverage',
-      'SAML SSO + audit logs',
-      'Dedicated success manager',
-      'Quarterly content reviews',
+      'Everything in Basic',
+      'AI assistant — ask anything, at any step',
+      'Field-by-field guides for the official forms',
+      'Document completeness check',
+      'Ausländerbehörde appointment-email generator',
     ],
-    cta: { label: 'Contact sales', href: 'mailto:hello@treppd.de' },
-    icon: Building2,
+    cta: { label: 'Get Pro', href: '/register?plan=pro' },
+    highlight: true,
+    icon: Sparkles,
   },
 ];
 
@@ -141,8 +135,8 @@ export default function PricingPage() {
               Simple, honest pricing.
             </h1>
             <p className="mt-4 text-text-secondary sm:text-lg">
-              Free for students figuring it out alone. Pro when you need the
-              whole toolkit. Org plans for universities + employers.
+              Free to start. One simple price for the whole toolkit — paid once
+              for 6 months of access, not a monthly subscription.
             </p>
           </div>
 
@@ -151,6 +145,21 @@ export default function PricingPage() {
               <TierCard key={t.name} tier={t} />
             ))}
           </div>
+
+          <p className="mx-auto mt-8 max-w-2xl px-4 text-center text-sm text-text-muted">
+            Bringing a cohort?{' '}
+            <span className="font-medium text-text-secondary">
+              Treppd is free for partner universities&rsquo; students
+            </span>{' '}
+            —{' '}
+            <a
+              href="mailto:hello@treppd.de"
+              className="text-accent hover:underline"
+            >
+              partner with us
+            </a>
+            .
+          </p>
         </section>
 
         <section className="bg-subtle/40 py-16">
