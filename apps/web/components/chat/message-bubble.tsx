@@ -39,7 +39,9 @@ export function MessageBubble({
     >
       <div
         className={cn(
-          'max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-xs sm:max-w-[75%]',
+          // Narrow chat surfaces (modal, sidebar) can't afford 15% dead space —
+          // give the bubble almost the full width and let text wrap freely.
+          'min-w-0 max-w-[92%] break-words rounded-2xl px-4 py-3 text-sm shadow-xs sm:max-w-[80%]',
           isUser
             ? 'rounded-br-md bg-accent text-accent-foreground'
             : 'rounded-bl-md border border-border-default bg-surface text-text-primary',
@@ -51,12 +53,18 @@ export function MessageBubble({
               'prose prose-sm max-w-none',
               // Rhythm tweaks
               'prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5',
-              'prose-headings:mb-1 prose-headings:mt-2',
+              // Cap heading sizes so an `# H1` from Claude doesn't dominate
+              // the whole modal. Chat context, not a landing page.
+              'prose-headings:mb-1 prose-headings:mt-3 prose-headings:leading-snug',
+              'prose-h1:text-base prose-h1:font-semibold',
+              'prose-h2:text-sm prose-h2:font-semibold',
+              'prose-h3:text-xs prose-h3:font-semibold prose-h3:uppercase prose-h3:tracking-wide',
               // Color semantics — follow tokens rather than hard-coded greys
               'prose-headings:text-text-primary',
               'prose-p:text-text-primary',
               'prose-strong:text-text-primary prose-strong:font-semibold',
-              'prose-a:text-accent hover:prose-a:text-accent-hover',
+              // Long verified-source URLs would blow the layout without break-all
+              'prose-a:break-all prose-a:text-accent hover:prose-a:text-accent-hover',
               'prose-code:text-text-primary prose-code:bg-subtle prose-code:rounded prose-code:px-1 prose-code:py-0.5',
               'prose-pre:bg-subtle prose-pre:text-text-primary',
               'prose-blockquote:border-l-accent prose-blockquote:text-text-secondary',

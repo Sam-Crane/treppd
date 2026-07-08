@@ -5,6 +5,12 @@ import { REQUEST } from '@nestjs/core';
 import { Inject, Scope } from '@nestjs/common';
 import type { Request } from 'express';
 
+import { pythonBreaker } from './python-breaker';
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 interface RetryOptions {
   retries: number;
   baseDelayMs: number;
@@ -16,10 +22,6 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
   baseDelayMs: 500,
   timeoutMs: 30_000,
 };
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 @Injectable({ scope: Scope.REQUEST })
 export class PythonService {
@@ -45,70 +47,29 @@ export class PythonService {
     body: Record<string, unknown>,
     opts: RetryOptions = DEFAULT_RETRY_OPTIONS,
   ): Promise<Record<string, unknown> | null> {
-    const url = `${this.baseUrl}${path}`;
     const requestId = this.getRequestId();
-
-    for (let attempt = 0; attempt <= opts.retries; attempt++) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), opts.timeoutMs);
-
-      try {
-        const headers: Record<string, string> = {
-          'Content-Type': 'application/json',
-          'X-Internal-Key': this.apiKey,
-        };
-        if (requestId) headers['X-Request-ID'] = requestId;
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(body),
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeout);
-
-        if (response.ok) {
-          return (await response.json()) as Record<string, unknown>;
-        }
-
-        // Retry on 5xx, don't retry on 4xx
-        if (response.status < 500 || attempt === opts.retries) {
-          this.logger.warn(
-            { path, status: response.status, attempt, requestId },
-            'Python service returned non-retryable error',
-          );
-          return null;
-        }
-
-        this.logger.warn(
-          { path, status: response.status, attempt, requestId },
-          'Python service 5xx, retrying',
-        );
-      } catch (error) {
-        clearTimeout(timeout);
-        const message = (error as Error).message;
-
-        if (attempt === opts.retries) {
-          this.logger.warn(
-            { path, attempt, error: message, requestId },
-            'Python service unavailable after retries, falling back',
-          );
-          return null;
-        }
-
-        this.logger.warn(
-          { path, attempt, error: message, requestId },
-          'Python service error, retrying',
-        );
-      }
-
-      // Exponential backoff: 500ms, 1000ms, 2000ms...
-      const delay = opts.baseDelayMs * Math.pow(2, attempt);
-      await sleep(delay);
+    try {
+      return await pythonBreaker.fire({
+        path,
+        body,
+        timeoutMs: opts.timeoutMs,
+        retries: opts.retries,
+        baseUrl: this.baseUrl,
+        apiKey: this.apiKey,
+        requestId,
+      });
+    } catch (error) {
+      const message = (error as Error).message;
+      // When the breaker is open, opossum throws EOPENBREAKER / EBREAKEROPEN;
+      // all other errors are surfaced by doPythonCall (network, non-2xx, timeout).
+      // In every case we degrade to null so callers hit their `fallback: true`
+      // path (matches the pre-breaker contract).
+      this.logger.warn(
+        { path, error: message, requestId },
+        'Python call failed or breaker open — falling back',
+      );
+      return null;
     }
-
-    return null;
   }
 
   async generateRoadmap(
