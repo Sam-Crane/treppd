@@ -27,7 +27,7 @@ from services.embeddings import EmbeddingsService, EmbeddingsServiceUnavailable
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "claude-sonnet-4-20250514"
+CHAT_MODEL = "claude-sonnet-5"
 # Cosine-similarity floor for retrieval. Voyage `voyage-3` query/document
 # pairs over a heterogeneous corpus typically score in the 0.25–0.60 range,
 # so we keep the floor permissive and let the prompt's safety rules decide

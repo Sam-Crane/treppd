@@ -70,7 +70,7 @@ class DocumentReviewService:
         )
         try:
             message = self.anthropic.messages.create(
-                model="claude-opus-4-5",
+                model="claude-sonnet-5",
                 max_tokens=300,
                 system=_SYSTEM,
                 messages=[{"role": "user", "content": user_payload}],

@@ -38,7 +38,7 @@ from prompts.field_prompt import (
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "claude-sonnet-4-20250514"
+CHAT_MODEL = "claude-sonnet-5"
 MAX_TOKENS = 512  # responses are short structured JSON
 CACHE_TTL_SECONDS = 60 * 60  # 60 min
 

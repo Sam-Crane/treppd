@@ -400,7 +400,7 @@ class TestPersistAndLog:
 
         assert insert_call["operation"] == "roadmap_enrich"
         assert insert_call["user_id"] == "user-123"
-        assert insert_call["model_used"] == "claude-sonnet-4-20250514"
+        assert insert_call["model_used"] == "claude-sonnet-5"
         assert insert_call["latency_ms"] == 1500
         assert insert_call["output_payload"]["step_count"] == 2
         assert insert_call["output_payload"]["ai_enriched"] is True
