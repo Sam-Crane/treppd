@@ -5,9 +5,11 @@ import {
   Patch,
   Delete,
   Body,
+  Header,
   UseGuards,
   NotFoundException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/user.decorator';
@@ -46,6 +48,20 @@ export class ProfilesController {
     @Body() dto: UpdateProfileDto,
   ) {
     return await this.profilesService.update(user.userId, dto);
+  }
+
+  /**
+   * GDPR Art. 15 (access) + Art. 20 (portability) — machine-readable export.
+   * Rate-limited to prevent scraping via a stolen token.
+   */
+  @Throttle({ default: { limit: 5, ttl: 3_600_000 } })
+  @Header(
+    'Content-Disposition',
+    'attachment; filename="treppd-data-export.json"',
+  )
+  @Get('me/export')
+  async exportData(@CurrentUser() user: { userId: string }) {
+    return await this.profilesService.exportUserData(user.userId);
   }
 
   @Delete('me')

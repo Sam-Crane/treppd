@@ -27,7 +27,7 @@ from prompts.appointment_email_prompt import (
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "claude-sonnet-4-20250514"
+CHAT_MODEL = "claude-sonnet-5"
 MAX_TOKENS = 700  # German email ≈ 200-400 output tokens; leave headroom
 CACHE_TTL_SECONDS = 60 * 60  # 60 min
 

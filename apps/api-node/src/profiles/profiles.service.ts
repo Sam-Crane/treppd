@@ -69,6 +69,56 @@ export class ProfilesService {
     return data as Record<string, unknown>;
   }
 
+  /**
+   * GDPR Art. 15 (right of access) + Art. 20 (data portability). Returns a
+   * self-contained JSON snapshot of every table row keyed to this user across
+   * the app. Uses the service-key client (bypasses RLS) because the user is
+   * asking for THEIR OWN data — the userId is the authenticated caller. We
+   * deliberately exclude admin_role from the users row.
+   */
+  async exportUserData(userId: string): Promise<Record<string, unknown>> {
+    const client = this.supabase.getClient();
+    // Tables scoped by user_id (owner-only data), and their columns to export.
+    // Anything system-managed / admin-only stays out.
+    const scoped: Array<[string, string]> = [
+      ['users', 'id, email, preferred_language, subscription_tier, created_at'],
+      ['user_profiles', '*'],
+      ['user_roadmaps', 'id, generated_at, expires_at, ai_enriched, steps'],
+      [
+        'user_documents',
+        'id, step_slug, document_name_en, display_name, mime_type, file_size_bytes, uploaded_at, expires_at',
+      ],
+      ['form_sessions', '*'],
+      ['appointment_watches', '*'],
+      ['ai_conversations', '*'],
+      ['ai_feedback', '*'],
+      ['push_subscriptions', 'id, endpoint, created_at, last_used_at'],
+      ['notification_preferences', '*'],
+    ];
+
+    const userScopedColumn: Record<string, string> = {
+      users: 'id',
+    };
+
+    const dump: Record<string, unknown[]> = {};
+    for (const [table, columns] of scoped) {
+      const idCol = userScopedColumn[table] ?? 'user_id';
+      const { data } = await client
+        .from(table)
+        .select(columns)
+        .eq(idCol, userId);
+      dump[table] = (data as unknown[]) ?? [];
+    }
+
+    return {
+      export_generated_at: new Date().toISOString(),
+      user_id: userId,
+      data: dump,
+      notice:
+        'GDPR Art. 15 / Art. 20 export. Includes personal data held in the Treppd app. Storage-bucket files are referenced by storage_path; use /documents to download the bytes.',
+    };
+  }
+
   async delete(userId: string) {
     const { error } = await this.supabase
       .getClient()

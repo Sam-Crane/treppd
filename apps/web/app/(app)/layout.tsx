@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { ThemeToggle, Button } from '@/components/ui';
 import { Logo } from '@/components/ui/logo';
@@ -86,6 +87,42 @@ function NavLink({
       />
       <span className="truncate">{label}</span>
     </Link>
+  );
+}
+
+/** Privacy link + GDPR data export (Art. 15/20). */
+function PrivacyExportRow() {
+  async function exportData() {
+    try {
+      const dump = await api.get<Record<string, unknown>>(
+        '/profiles/me/export',
+      );
+      const blob = new Blob([JSON.stringify(dump, null, 2)], {
+        type: 'application/json',
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'treppd-data-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert('Could not export your data. Please try again.');
+    }
+  }
+  return (
+    <div className="flex items-center justify-between px-2 text-[10px] text-text-muted">
+      <Link href="/privacy" className="hover:text-text-primary">
+        Privacy
+      </Link>
+      <button
+        onClick={exportData}
+        className="hover:text-text-primary"
+        title="Download a JSON copy of your data (GDPR Art. 15/20)"
+      >
+        Export my data
+      </button>
+    </div>
   );
 }
 
@@ -172,6 +209,7 @@ export default function AppLayout({
             Educational guidance. Not legal advice. Always verify with your
             local Ausländerbehörde.
           </p>
+          <PrivacyExportRow />
           <SidebarUserMenu />
         </div>
       </aside>

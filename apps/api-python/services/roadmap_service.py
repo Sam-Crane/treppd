@@ -193,7 +193,7 @@ class RoadmapService:
         user_prompt = build_user_prompt(base_steps, profile)
 
         response = self.anthropic.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-5",
             max_tokens=4096,
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
@@ -334,7 +334,7 @@ class RoadmapService:
                 "user_id": user_id,
                 "input_payload": safe_profile,
                 "output_payload": {"step_count": len(steps), "ai_enriched": ai_enriched},
-                "model_used": "claude-sonnet-4-20250514",
+                "model_used": "claude-sonnet-5",
                 "input_tokens": getattr(self, "_last_input_tokens", None),
                 "output_tokens": getattr(self, "_last_output_tokens", None),
                 "latency_ms": latency_ms,

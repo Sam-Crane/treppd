@@ -27,7 +27,7 @@ from services.embeddings import EmbeddingsService, EmbeddingsServiceUnavailable
 
 logger = logging.getLogger(__name__)
 
-CHAT_MODEL = "claude-sonnet-4-20250514"
+CHAT_MODEL = "claude-sonnet-5"
 # Cosine-similarity floor for retrieval. Voyage `voyage-3` query/document
 # pairs over a heterogeneous corpus typically score in the 0.25–0.60 range,
 # so we keep the floor permissive and let the prompt's safety rules decide
@@ -112,6 +112,139 @@ class RAGPipeline:
             )
         return chunks
 
+    # ---------------------------------------------------------- structured facts
+
+    def retrieve_structured_facts(self, profile: dict) -> dict:
+        """Fetch human-curated facts from the DB (roadmap_steps, offices,
+        housing_parameters, service_providers) filtered to the user's context.
+
+        These live OUTSIDE the vector store (knowledge_chunks): they're
+        typed, admin-curated rows with source_url + verified_at. Feeding them
+        into the prompt as structured data gives Claude specific facts
+        (typical_wait_days, office addresses, blocked-account thresholds,
+        provider URLs) that the ingested web pages don't reliably carry.
+        """
+        visa = profile.get("visa_type")
+        bundesland = profile.get("bundesland")
+        facts: dict[str, list[dict]] = {
+            "roadmap_steps": [],
+            "document_requirements": [],
+            "offices": [],
+            "housing_parameters": [],
+            "service_providers": [],
+        }
+
+        try:
+            steps = (
+                self.supabase.table("roadmap_steps")
+                .select(
+                    "slug, title_en, office_type, typical_wait_days, "
+                    "deadline_rule, can_do_online, source_url, verified_at, "
+                    "visa_types, bundeslaender"
+                )
+                .execute()
+                .data
+                or []
+            )
+            facts["roadmap_steps"] = [
+                {k: v for k, v in s.items() if k not in ("visa_types", "bundeslaender")}
+                for s in steps
+                if (not s.get("visa_types") or (visa and visa in s["visa_types"]))
+                and (
+                    not s.get("bundeslaender")
+                    or (bundesland and bundesland in s["bundeslaender"])
+                )
+            ]
+
+            # Documents required per step (with tags), scoped to slugs the user's
+            # visa/state actually surface. This is the row set that answers
+            # "what documents do I need for X" directly.
+            relevant_slugs = [s["slug"] for s in facts["roadmap_steps"]]
+            if relevant_slugs:
+                reqs = (
+                    self.supabase.table("document_requirements")
+                    .select(
+                        "step_slug, document_name_en, document_name_de, "
+                        "needs_translation, needs_apostille, needs_certified_copy, "
+                        "estimated_cost_eur, where_to_get, "
+                        "applies_to_bundeslaender, "
+                        "document_requirement_tags(tag)"
+                    )
+                    .in_("step_slug", relevant_slugs)
+                    .execute()
+                    .data
+                    or []
+                )
+                # Filter Bundesland-specific docs.
+                facts["document_requirements"] = [
+                    {
+                        **{
+                            k: v
+                            for k, v in r.items()
+                            if k
+                            not in (
+                                "applies_to_bundeslaender",
+                                "document_requirement_tags",
+                            )
+                        },
+                        "tags": [
+                            t.get("tag")
+                            for t in (r.get("document_requirement_tags") or [])
+                        ],
+                    }
+                    for r in reqs
+                    if (
+                        not r.get("applies_to_bundeslaender")
+                        or (
+                            bundesland
+                            and bundesland in r["applies_to_bundeslaender"]
+                        )
+                    )
+                ]
+
+            if bundesland:
+                facts["offices"] = (
+                    self.supabase.table("offices")
+                    .select(
+                        "city, name_de, office_type, address, phone, "
+                        "contact_email, booking_url, permit_categories, source_url"
+                    )
+                    .eq("bundesland", bundesland)
+                    .execute()
+                    .data
+                    or []
+                )
+
+            facts["housing_parameters"] = (
+                self.supabase.table("housing_parameters")
+                .select("key, value, unit, effective_from, source_url")
+                .order("effective_from", desc=True)
+                .execute()
+                .data
+                or []
+            )
+
+            facts["service_providers"] = (
+                self.supabase.table("service_providers")
+                .select("category, name, url, relevant_step_slugs, description_en")
+                .execute()
+                .data
+                or []
+            )
+        except Exception:
+            logger.exception("Structured-facts retrieval failed; continuing")
+
+        logger.info(
+            "Structured facts: steps=%d, docs=%d, offices=%d, "
+            "housing_params=%d, providers=%d",
+            len(facts["roadmap_steps"]),
+            len(facts["document_requirements"]),
+            len(facts["offices"]),
+            len(facts["housing_parameters"]),
+            len(facts["service_providers"]),
+        )
+        return facts
+
     # --------------------------------------------------------------- generate
 
     async def stream_response(
@@ -140,6 +273,7 @@ class RAGPipeline:
             visa_type=profile.get("visa_type"),
             bundesland=profile.get("bundesland"),
         )
+        structured_facts = self.retrieve_structured_facts(profile)
 
         # Surface retrieval up front so the UI can render a "thinking..."
         # indicator with source previews while Claude generates.
@@ -156,7 +290,7 @@ class RAGPipeline:
             ],
         }
 
-        system_prompt = build_chat_system_prompt(chunks, profile)
+        system_prompt = build_chat_system_prompt(chunks, profile, structured_facts)
         history = trim_history(conversation_history, keep_last=HISTORY_KEEP)
         messages = [
             *history,
@@ -170,7 +304,10 @@ class RAGPipeline:
         try:
             with self.anthropic.messages.stream(
                 model=CHAT_MODEL,
-                max_tokens=1024,
+                # 1024 was mid-response cutoffs on multi-section answers
+                # (document checklists, roadmap explanations). 2048 covers
+                # every real answer without being wasteful.
+                max_tokens=2048,
                 system=system_prompt,
                 messages=messages,
                 timeout=60.0,

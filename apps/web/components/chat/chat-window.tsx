@@ -84,8 +84,12 @@ export function ChatWindow({ embedded = false }: { embedded?: boolean } = {}) {
           assembled += text;
           setStreamingText(assembled);
         },
-        onDone() {
-          // Move the streaming message into the persisted (optimistic) list
+        onDone: async () => {
+          // Keep the finished assistant reply on-screen (in the optimistic
+          // list) while we wait for the canonical history to refetch. Once
+          // the server response is back, clear the optimistic list — otherwise
+          // every message would render twice (once from persistedMessages,
+          // once from optimisticMessages).
           setOptimisticMessages((prev) => [
             ...prev,
             {
@@ -97,8 +101,8 @@ export function ChatWindow({ embedded = false }: { embedded?: boolean } = {}) {
           setStreamingText(null);
           setStreamingSources(null);
           setIsStreaming(false);
-          // Refetch history from server so the persisted state is canonical
-          queryClient.invalidateQueries({ queryKey: ['chat-history'] });
+          await queryClient.refetchQueries({ queryKey: ['chat-history'] });
+          setOptimisticMessages([]);
         },
         onError(message) {
           setStreamError(message);
