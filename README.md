@@ -46,6 +46,24 @@ Treppd acts as a smart personal assistant for every immigrant's bureaucratic jou
 4. **Document Checklist** — Exactly which documents to prepare, with specifications
 5. **AI Guidance Chat** — Ask questions in plain language at any step
 6. **Deadline Alerts** — Never miss a visa expiry or statutory deadline
+   ## Immigration & Bureaucracy Knowledge Base
+
+
+## Immigration & Bureaucracy Knowledge Base
+
+Treppd's AI guidance is supported by a verified, human-curated immigration knowledge base. The knowledge base organizes official information from German government and immigration authority sources into structured, user-focused guidance.
+
+The immigration domain covers:
+
+- Visa and residence permit requirements
+- Bundesland- and city-specific immigration rules
+- Required documents and eligibility conditions
+- Official forms documented field by field
+- Responsible immigration offices and official sources
+- Step-by-step bureaucratic processes
+- Source URLs and verification dates for traceability
+
+The initial focus is on Bavaria, Berlin, and North Rhine-Westphalia, with the architecture designed to support coverage of all 16 Bundesländer.
 
 ---
 
